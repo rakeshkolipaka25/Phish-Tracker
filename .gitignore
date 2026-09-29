@@ -1,0 +1,15 @@
+node_modules/
+.env
+uploads/
+*.log
+
+# Test/debug scripts with credentials
+brevo_api_send.js
+brevo_check.js
+smtp_test.js
+send_test.js
+send_to_jahnavi.js
+direct_gmail_send.js
+test_atlas.js
+check_activity_logs.js
+trigger_web_mail.js

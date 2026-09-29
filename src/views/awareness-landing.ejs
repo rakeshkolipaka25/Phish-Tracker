@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Awareness Alert | PhishAware Simulation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(18, 24, 38, 0.95);
+      --border: rgba(255, 255, 255, 0.08);
+      --accent: #f59e0b;
+      --accent-glow: rgba(245, 158, 11, 0.25);
+      --danger: #ef4444;
+      --success: #10b981;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(245, 158, 11, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(239, 68, 68, 0.08) 0%, transparent 45%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 760px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px var(--accent-glow);
+      backdrop-filter: blur(16px);
+      overflow: hidden;
+      animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .banner {
+      background: linear-gradient(135deg, #b45309, #d97706, #f59e0b);
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .shield-icon {
+      width: 58px;
+      height: 58px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      flex-shrink: 0;
+    }
+
+    .banner-text h1 {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+    }
+
+    .banner-text p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.9);
+      margin-top: 4px;
+    }
+
+    .content {
+      padding: 32px;
+    }
+
+    .safe-notice {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .safe-notice span {
+      font-size: 20px;
+    }
+
+    .safe-notice p {
+      font-size: 13.5px;
+      color: #6ee7b7;
+      line-height: 1.5;
+    }
+
+    .simulation-meta {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+
+    .simulation-meta div {
+      margin-bottom: 6px;
+    }
+
+    .simulation-meta div:last-child {
+      margin-bottom: 0;
+    }
+
+    .simulation-meta strong {
+      color: var(--text);
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #fbbf24;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .red-flag-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .red-flag-item {
+      background: rgba(239, 68, 68, 0.08);
+      border-left: 4px solid var(--danger);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #fca5a5;
+    }
+
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+
+    .tip-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .tip-card h3 {
+      font-size: 13px;
+      color: #38bdf8;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .tip-card p {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .action-section {
+      text-align: center;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-complete {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-complete:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.4);
+    }
+
+    .acknowledged-box {
+      display: none;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #10b981;
+      padding: 14px;
+      border-radius: 8px;
+      color: #a7f3d0;
+      font-weight: 600;
+      font-size: 14px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="banner">
+      <div class="shield-icon">🛡️</div>
+      <div class="banner-text">
+        <h1>Authorized Security Awareness Simulation</h1>
+        <p>You clicked on a controlled simulated phishing exercise. No real credentials were compromised.</p>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="safe-notice">
+        <span>✅</span>
+        <p><strong>Safe Learning Moment:</strong> This test was conducted by your Organization's Cybersecurity Team to strengthen our defenses against social engineering attacks. No personal or enterprise data was taken.</p>
+      </div>
+
+      <div class="simulation-meta">
+        <div><strong>Recipient:</strong> <%= recipient ? recipient.fullName + ' (' + recipient.email + ')' : 'Authorized Participant' %></div>
+        <div><strong>Department:</strong> <%= recipient ? recipient.department : 'Corporate Organization' %></div>
+        <div><strong>Trigger Type:</strong> <%= type === 'attachment_click' ? 'Simulated Attachment Access' : 'Simulated Phishing Link Click' %></div>
+        <div><strong>Simulation ID:</strong> <%= token || 'N/A' %></div>
+      </div>
+
+      <h2>🔍 Red Flags Present in this Email</h2>
+      <ul class="red-flag-list">
+        <% if (campaign && campaign.template && campaign.template.redFlags && campaign.template.redFlags.length > 0) { %>
+          <% campaign.template.redFlags.forEach(flag => { %>
+            <li class="red-flag-item">⚠️ <%= flag %></li>
+          <% }); %>
+        <% } else { %>
+          <li class="red-flag-item">⚠️ <strong>Urgency Manipulation:</strong> Phishing emails often stress impending lockouts, short deadlines, or urgent requests to bypass logical scrutiny.</li>
+          <li class="red-flag-item">⚠️ <strong>Sender Spoofing:</strong> The sender address used an external lookalike domain not aligned with official IT infrastructure.</li>
+          <li class="red-flag-item">⚠️ <strong>Unverified Links/Attachments:</strong> Action buttons and attachments directed to an unverified location rather than standard internal Single-Sign-On portals.</li>
+        <% } %>
+      </ul>
+
+      <h2>💡 3 Rules for Next Time</h2>
+      <div class="tips-grid">
+        <div class="tip-card">
+          <h3>1. Hover Before Clicking</h3>
+          <p>Always inspect the destination URL behind hyperlinks to check if it matches the genuine domain.</p>
+        </div>
+        <div class="tip-card">
+          <h3>2. Verify Out-of-Band</h3>
+          <p>If an email requests password changes or wire transfers, call IT or HR via official corporate directories.</p>
+        </div>
+        <div class="tip-card">
+          <h3>3. Report to Security</h3>
+          <p>Use your organization's "Report Phishing" button or notify the SOC immediately when you suspect an email.</p>
+        </div>
+      </div>
+
+      <div class="action-section">
+        <button id="btnComplete" class="btn-complete" onclick="recordCompletion('<%= token %>')">
+          ✓ I Acknowledge & Complete Awareness Training
+        </button>
+        <div id="acknowledgedBox" class="acknowledged-box">
+          🎉 Training Completed! Your participation has been recorded in the security awareness dashboard.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function recordCompletion(token) {
+      if (!token) return;
+      try {
+        const res = await fetch('/track/complete-awareness', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('btnComplete').style.display = 'none';
+          document.getElementById('acknowledgedBox').style.display = 'block';
+        }
+      } catch (err) {
+        console.error('Error completing training:', err);
+      }
+    }
+  </script>
+</body>
+</html>

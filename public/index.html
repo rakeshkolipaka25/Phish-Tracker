@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhishTrack | Email Simulator & Live Activity Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --border: rgba(255, 255, 255, 0.08);
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --danger: #ef4444;
+      --success: #10b981;
+      --purple: #d946ef;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 1480px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-bg);
+      padding: 18px 24px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 800;
+    }
+    .brand span { color: var(--primary); }
+
+    .tag-safe {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 580px 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 1120px) {
+      .grid-layout { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-group { margin-bottom: 14px; }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    input[type="text"], input[type="email"], textarea, select {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 9px 12px;
+      color: #fff;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .mode-toggle-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .mode-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .mode-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .template-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .tmpl-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .tmpl-pill:hover, .tmpl-pill.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .file-dropzone {
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.02);
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .file-dropzone:hover {
+      border-color: var(--primary);
+    }
+    .file-dropzone input {
+      display: none;
+    }
+
+    .btn-send {
+      width: 100%;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      font-weight: 800;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      margin-top: 14px;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+      transition: transform 0.15s, opacity 0.2s;
+    }
+    .btn-send:hover { opacity: 0.95; transform: translateY(-1px); }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .kpi-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
+    }
+    .kpi-box .val { font-size: 24px; font-weight: 800; margin: 4px 0; }
+    .kpi-box .lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+    th {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 10px 12px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .badge-delivered { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .badge-clicked { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    .badge-attachment { background: rgba(217, 70, 239, 0.2); color: #e879f9; }
+    .badge-none { background: rgba(255, 255, 255, 0.06); color: #64748b; }
+
+    .test-btn {
+      color: #60a5fa;
+      text-decoration: underline;
+      font-size: 11px;
+      margin-right: 6px;
+    }
+
+    .help-bubble {
+      font-size: 11px;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+        🛡️ Phish<span>Track</span>
+      </div>
+      <div class="tag-safe">
+        Live Threat Simulation & Activity Monitor
+      </div>
+    </header>
+
+    <div class="grid-layout">
+      <!-- 1. Left Form: Custom Composer with Link / File Selection -->
+      <section class="card">
+        <h2 class="card-title">⚡ Email Composer</h2>
+        
+        <label>🎯 Choose Email Scenario (Auto-Applies Design):</label>
+        <div class="template-selector">
+          <div class="tmpl-pill active" data-key="security" onclick="loadTemplate('security', this)">🚨 Suspicious Login</div>
+          <div class="tmpl-pill" data-key="salary" onclick="loadTemplate('salary', this)">💰 Payroll & Bonus</div>
+          <div class="tmpl-pill" data-key="password" onclick="loadTemplate('password', this)">🔐 Password Expiry</div>
+          <div class="tmpl-pill" data-key="custom" onclick="loadTemplate('custom', this)">✏️ Blank Custom</div>
+        </div>
+
+        <form id="emailForm" onsubmit="handleSendEmail(event)">
+          <!-- Select either Link, File, or Both -->
+          <label>🛠️ Choose Attack Payload to Send:</label>
+          <div class="mode-toggle-group">
+            <label class="mode-label">
+              <input type="checkbox" id="includeLinkCheck" checked onchange="togglePayloadFields()">
+              🔗 Include Tracking Link
+            </label>
+            <label class="mode-label">
+              <input type="checkbox" id="includeFileCheck" checked onchange="togglePayloadFields()">
+              📎 Include Attached File
+            </label>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label>Sender Display Name</label>
+              <input type="text" id="senderName" value="IT Security Operations" required>
+            </div>
+            <div class="form-group">
+              <label>Sender Address (Auth via Gmail)</label>
+              <input type="text" id="senderEmail" value="kolipakarakesh1234@gmail.com" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Subject Line</label>
+            <input type="text" id="emailSubject" value="Action Required: Unauthorized Device Sign-In Attempt Detected" required>
+          </div>
+
+          <!-- Section for Link Button (Toggled) -->
+          <div class="form-group" id="linkSection">
+            <label>🔗 Action Link Button Text</label>
+            <input type="text" id="actionBtnText" value="🛡️ Verify My Account Now">
+          </div>
+
+          <!-- Section for Attached File (Toggled) -->
+          <div class="form-group" id="fileSection">
+            <label>📎 Email Attachment (Custom Upload OR Simulated Protected Doc)</label>
+            <div class="file-dropzone" onclick="document.getElementById('fileInput').click()">
+              <input type="file" id="fileInput" onchange="handleFileSelected(this)">
+              <span id="fileLabel">📂 Click to upload real file (PDF, HTML, DOCX) or leave for auto-generator</span>
+            </div>
+          </div>
+
+          <!-- Plain Text / Clean Content Box -->
+          <div class="form-group">
+            <label>Message Body (Just type normal words - NO HTML!)</label>
+            <textarea id="plainTextBody" rows="5" placeholder="Write your message here..." required></textarea>
+            <div class="help-bubble">
+              ✨ <strong>Auto-Styled:</strong> Type regular sentences. Headers, color schemes, and buttons are applied automatically without writing code!
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Recipient Receiver Emails (1 per line: Name, email)</label>
+            <textarea id="recipients" rows="2" placeholder="Mike, mikesecurityit@gmail.com" required>Mike, mikesecurityit@gmail.com
+Jahnavi, jahnavikolipaka16@gmail.com</textarea>
+          </div>
+
+          <button type="submit" class="btn-send" id="submitBtn">🚀 Send Designed Email</button>
+        </form>
+      </section>
+
+      <!-- 2. Right Live Monitoring Dashboard -->
+      <section class="card">
+        <h2 class="card-title">📊 Live Receiver Activity Dashboard</h2>
+
+        <div class="kpi-row">
+          <div class="kpi-box">
+            <div class="lbl">Emails Sent</div>
+            <div class="val" id="statSent">0</div>
+          </div>
+          <div class="kpi-box">
+            <div class="lbl">Link Clicks</div>
+            <div class="val" style="color: #f87171;" id="statClicked">0</div>
+          </div>
+          <div class="kpi-box">
+            <div class="lbl">Files Opened</div>
+            <div class="val" style="color: #e879f9;" id="statAttachment">0</div>
+          </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Receiver</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>URL Clicked?</th>
+                <th>File Opened?</th>
+                <th>Simulate Action</th>
+              </tr>
+            </thead>
+            <tbody id="receiverTableBody">
+              <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading dashboard data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    let selectedFile = null;
+    let currentTheme = 'security';
+
+    function togglePayloadFields() {
+      const hasLink = document.getElementById('includeLinkCheck').checked;
+      const hasFile = document.getElementById('includeFileCheck').checked;
+
+      document.getElementById('linkSection').style.display = hasLink ? 'block' : 'none';
+      document.getElementById('fileSection').style.display = hasFile ? 'block' : 'none';
+    }
+
+    const scenarios = {
+      security: {
+        sender: "IT Security Operations",
+        subject: "Action Required: Unauthorized Device Sign-In Attempt Detected",
+        btnText: "🛡️ Verify My Account Now",
+        text: `We have detected unusual sign-in activity on your account from an unrecognized IP address (Moscow, Russia - IP: 185.220.101.42).
+
+To prevent unauthorized access, your session will be suspended in 24 hours unless you verify your identity.`
+      },
+      salary: {
+        sender: "Corporate HR & Payroll",
+        subject: "Confidential: Annual Compensation & Bonus Revision Statement",
+        btnText: "👉 View Appraisal Statement",
+        text: `Your revised compensation statement and upcoming quarterly performance bonus report for Q3 have been released.
+
+Document: Q3_Salary_Appraisal_Statement.pdf
+Status: Pending Employee Digital Signature`
+      },
+      password: {
+        sender: "Identity & Access Management",
+        subject: "FINAL NOTICE: Corporate Microsoft 365 Password Expires in 2 Hours",
+        btnText: "Keep Current Password / Extend Access",
+        text: `Your network account credentials will expire today at 18:00 under mandatory corporate policy.
+
+To retain your current password and avoid service lockouts to your VPN, email and SSO, please confirm your access.`
+      },
+      custom: {
+        sender: "Administrative Notification",
+        subject: "Action Required: Account Verification Notice",
+        btnText: "Verify Identity Now",
+        text: `We require you to complete your security compliance verification today. 
+
+Please review the notice and complete verification immediately.`
+      }
+    };
+
+    function loadTemplate(key, targetEl) {
+      currentTheme = key;
+      document.querySelectorAll('.tmpl-pill').forEach(p => p.classList.remove('active'));
+      // targetEl may be undefined on programmatic call (page load)
+      if (targetEl) targetEl.classList.add('active');
+      else {
+        // Highlight the matching pill by data attribute
+        const pill = document.querySelector(`.tmpl-pill[data-key="${key}"]`);
+        if (pill) pill.classList.add('active');
+      }
+
+      const sc = scenarios[key];
+      if (sc) {
+        document.getElementById('senderName').value = sc.sender;
+        document.getElementById('emailSubject').value = sc.subject;
+        document.getElementById('actionBtnText').value = sc.btnText;
+        document.getElementById('plainTextBody').value = sc.text;
+      }
+    }
+
+    function buildStyledHtml(theme, plainText, btnText, includeLink) {
+      const paragraphs = plainText.split('\n\n').filter(p => p.trim().length > 0).map(p => {
+        return `<p style="margin:0 0 16px 0; line-height:1.6;">${p.replace(/\n/g, '<br>')}</p>`;
+      }).join('');
+
+      const linkButtonHtml = includeLink ? `
+        <div style="text-align:center; margin:32px 0;">
+          <a href="{{trackingLink}}" style="background:linear-gradient(135deg, #ef4444, #dc2626); color:#ffffff; padding:16px 36px; text-decoration:none; border-radius:8px; font-weight:800; font-size:16px; display:inline-block; box-shadow:0 6px 20px rgba(239, 68, 68, 0.4);">
+            ${btnText}
+          </a>
+        </div>
+      ` : '';
+
+      if (theme === 'security') {
+        return `<div style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width:600px; margin:0 auto; background:#121827; border-radius:12px; overflow:hidden; border:1px solid #1f2937; color:#f9fafb;">
+  <div style="background:linear-gradient(135deg, #b91c1c, #991b1b); padding:28px 24px; text-align:center;">
+    <div style="font-size:42px; margin-bottom:8px;">⚠️</div>
+    <h1 style="color:#ffffff; margin:0; font-size:22px; font-weight:800; letter-spacing:-0.5px;">Critical Security Alert: Account Verification Required</h1>
+  </div>
+  <div style="padding:32px 28px; background:#111827;">
+    <p style="font-size:16px; color:#e5e7eb; margin-top:0;">Dear <strong>{{name}}</strong>,</p>
+    <div style="color:#9ca3af; font-size:15px;">
+      ${paragraphs}
+    </div>
+    ${linkButtonHtml}
+    <hr style="border:none; border-top:1px solid #1f2937; margin:28px 0;" />
+    <p style="font-size:12px; color:#6b7280; margin:0;">IT Security Operations Center · Automated Threat Response</p>
+  </div>
+</div>`;
+      }
+
+      if (theme === 'salary') {
+        const salaryBtnHtml = includeLink ? `
+          <div style="text-align:center; margin:30px 0;">
+            <a href="{{trackingLink}}" style="background:#2563eb; color:#ffffff; padding:15px 32px; text-decoration:none; border-radius:8px; font-weight:700; font-size:15px; display:inline-block; box-shadow:0 4px 14px rgba(37, 99, 235, 0.3);">
+              ${btnText}
+            </a>
+          </div>
+        ` : '';
+
+        return `<div style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width:600px; margin:0 auto; background:#ffffff; border-radius:12px; overflow:hidden; border:1px solid #e5e7eb; color:#1f2937; box-shadow:0 10px 25px rgba(0,0,0,0.06);">
+  <div style="background:#0f172a; padding:24px; text-align:center;">
+    <h2 style="color:#ffffff; margin:0; font-size:20px; font-weight:800;">Corporate Human Resources & Payroll</h2>
+  </div>
+  <div style="padding:32px 28px;">
+    <p style="font-size:16px; margin-top:0;">Dear <strong>{{name}}</strong>,</p>
+    <div style="color:#4b5563; font-size:15px;">
+      ${paragraphs}
+    </div>
+    ${salaryBtnHtml}
+    <p style="font-size:13px; color:#6b7280;">Please verify before the end of the payroll processing cycle today.</p>
+  </div>
+</div>`;
+      }
+
+      if (theme === 'password') {
+        const pwdBtnHtml = includeLink ? `
+          <div style="text-align:center; margin:28px 0;">
+            <a href="{{trackingLink}}" style="background:#0078d4; color:#ffffff; padding:13px 28px; text-decoration:none; border-radius:4px; font-weight:700; display:inline-block;">
+              ${btnText}
+            </a>
+          </div>
+        ` : '';
+
+        return `<div style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width:600px; margin:0 auto; background:#ffffff; border-radius:8px; border:1px solid #d1d5db; color:#111827;">
+  <div style="border-bottom:3px solid #0078d4; padding:20px 24px;">
+    <h2 style="color:#0078d4; margin:0; font-size:18px;">Microsoft 365 Identity Governance</h2>
+  </div>
+  <div style="padding:28px 24px;">
+    <p>Dear <strong>{{name}}</strong>,</p>
+    <div style="color:#374151; font-size:14px;">
+      ${paragraphs}
+    </div>
+    ${pwdBtnHtml}
+    <p style="font-size:12px; color:#6b7280;">Failure to confirm will result in immediate suspension of VPN, email and SSO access.</p>
+  </div>
+</div>`;
+      }
+
+      // Clean custom card
+      const customBtnHtml = includeLink ? `
+        <div style="text-align:center; margin:30px 0;">
+          <a href="{{trackingLink}}" style="background:#2563eb; color:#ffffff; padding:14px 30px; text-decoration:none; border-radius:6px; font-weight:700; display:inline-block;">
+            ${btnText}
+          </a>
+        </div>
+      ` : '';
+
+      return `<div style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width:600px; margin:0 auto; background:#ffffff; border-radius:10px; border:1px solid #e2e8f0; padding:32px 28px; color:#1f2937;">
+  <p style="font-size:16px; margin-top:0;">Dear <strong>{{name}}</strong>,</p>
+  <div style="color:#4b5563; font-size:15px;">
+    ${paragraphs}
+  </div>
+  ${customBtnHtml}
+  <p style="font-size:12px; color:#9ca3af;">Corporate Operations Notification</p>
+</div>`;
+    }
+
+    function handleFileSelected(input) {
+      if (input.files && input.files[0]) {
+        selectedFile = input.files[0];
+        document.getElementById('fileLabel').textContent = `📄 Selected: ${selectedFile.name} (${(selectedFile.size/1024).toFixed(1)} KB)`;
+      }
+    }
+
+    async function handleSendEmail(e) {
+      e.preventDefault();
+
+      const includeLink = document.getElementById('includeLinkCheck').checked;
+      const includeFile = document.getElementById('includeFileCheck').checked;
+
+      if (!includeLink && !includeFile) {
+        alert('Please select at least one payload to send: either Include Tracking Link or Include Attached File (or both).');
+        return;
+      }
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Dispatching styled email...';
+
+      const senderName = document.getElementById('senderName').value;
+      const senderEmail = document.getElementById('senderEmail').value;
+      const customSubject = document.getElementById('emailSubject').value;
+      const btnText = document.getElementById('actionBtnText').value;
+      const plainText = document.getElementById('plainTextBody').value;
+      const rawRecipients = document.getElementById('recipients').value;
+
+      // Automatically generate professional HTML respecting link toggle
+      const generatedHtml = buildStyledHtml(currentTheme, plainText, btnText, includeLink);
+
+      const lines = rawRecipients.split('\n').filter(l => l.trim().length > 0);
+      const recipientsList = lines.map(line => {
+        const parts = line.split(',').map(p => p.trim());
+        return {
+          fullName: parts[0] || 'User',
+          email: parts[1] || parts[0],
+          department: 'General'
+        };
+      });
+
+      const formData = new FormData();
+      formData.append('title', customSubject);
+      formData.append('recipientsList', JSON.stringify(recipientsList));
+      formData.append('customSenderName', senderName);
+      formData.append('customSenderEmail', senderEmail);
+      formData.append('customSubject', customSubject);
+      formData.append('customBody', generatedHtml);
+      formData.append('hasAttachment', includeFile ? 'true' : 'false');
+      
+      if (includeFile && selectedFile) {
+        formData.append('customFile', selectedFile);
+      }
+
+      try {
+        const res = await fetch('/api/admin/campaigns', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert('✅ Email sent successfully! Check live tracking on the right.');
+          fetchDashboard();
+        } else {
+          alert('Error: ' + (data.error || 'Failed to dispatch email'));
+        }
+      } catch (err) {
+        alert('Network request error: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🚀 Send Designed Email';
+      }
+    }
+
+    async function fetchDashboard() {
+      try {
+        const campRes = await fetch('/api/admin/campaigns');
+        const campaigns = await campRes.json();
+
+        let totalSent = 0;
+        let totalClicked = 0;
+        let totalAttach = 0;
+        const allRecipients = [];
+
+        (campaigns || []).forEach(c => {
+          (c.recipients || []).forEach(r => {
+            totalSent++;
+            if (r.clicked) totalClicked++;
+            if (r.attachmentInteracted) totalAttach++;
+            allRecipients.push(r);
+          });
+        });
+
+        document.getElementById('statSent').textContent = totalSent;
+        document.getElementById('statClicked').textContent = totalClicked;
+        document.getElementById('statAttachment').textContent = totalAttach;
+
+        const tbody = document.getElementById('receiverTableBody');
+        if (allRecipients.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No emails sent yet.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = allRecipients.map(r => `
+          <tr>
+            <td><strong>${r.fullName || 'User'}</strong></td>
+            <td><code>${r.email}</code></td>
+            <td><span class="badge badge-delivered">Delivered</span></td>
+            <td>
+              ${r.clicked 
+                ? `<span class="badge badge-clicked">⚠️ YES (${r.clickCount || 1}x)</span>` 
+                : `<span class="badge badge-none">No</span>`
+              }
+            </td>
+            <td>
+              ${r.attachmentInteracted 
+                ? `<span class="badge badge-attachment">📎 YES (Opened)</span>` 
+                : `<span class="badge badge-none">No</span>`
+              }
+            </td>
+            <td>
+              <a href="/track/click?token=${r.trackingToken}" target="_blank" class="test-btn">Simulate Click</a>
+              <a href="/track/attachment?token=${r.trackingToken}" target="_blank" class="test-btn" style="color: #e879f9;">Simulate File Open</a>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        console.error('Dashboard fetch error:', e);
+      }
+    }
+
+    // Default load security theme and check toggles
+    loadTemplate('security');
+    togglePayloadFields();
+
+    // Auto load & refresh every 2.5 seconds
+    fetchDashboard();
+    setInterval(fetchDashboard, 2500);
+  </script>
+</body>
+</html>
