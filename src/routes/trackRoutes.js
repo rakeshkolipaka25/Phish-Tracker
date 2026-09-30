@@ -124,7 +124,7 @@ router.get('/click', async (req, res) => {
   }
 
   // Serve the Amazon phishing page instead of awareness landing
-  res.sendFile(path.join(__dirname, '../../public/amazon-phishing.html'));
+  res.sendFile(path.join(__dirname, '../../public/amazon/index.html'));
 });
 
 // 3. Attachment Simulation Tracking -> Educational landing page
