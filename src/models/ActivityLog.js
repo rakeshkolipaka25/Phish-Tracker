@@ -8,7 +8,7 @@ const activityLogSchema = new mongoose.Schema({
   trackingToken: { type: String, required: true },
   eventType: { 
     type: String, 
-    enum: ['delivered', 'opened', 'link_clicked', 'file_opened', 'awareness_completed'],
+    enum: ['delivered', 'opened', 'link_clicked', 'file_opened', 'awareness_completed', 'credentials_captured'],
     required: true 
   },
   status: { type: String, default: 'delivered' },

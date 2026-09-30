@@ -1,41 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PhishTrack | Email Simulator & Live Activity Monitor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
   <style>
     :root {
-      --bg: #090d16;
-      --card-bg: #111827;
-      --border: rgba(255, 255, 255, 0.08);
-      --primary: #3b82f6;
-      --primary-hover: #2563eb;
-      --danger: #ef4444;
-      --success: #10b981;
-      --purple: #d946ef;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
+      --bg: #000000;
+      --card-bg: #0a0a0a;
+      --border: #00ff00;
+      --border-dim: rgba(0, 255, 0, 0.3);
+      --primary: #00ff00;
+      --primary-hover: #00cc00;
+      --danger: #ff0000;
+      --success: #00ff00;
+      --warning: #ffff00;
+      --text: #00ff00;
+      --text-muted: #008800;
+      --glow: 0 0 10px rgba(0, 255, 0, 0.5);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
       background-color: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding: 24px;
+      padding: 20px;
+      background-image:
+        linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(0deg,
+          rgba(0, 0, 0, 0.15),
+          rgba(0, 0, 0, 0.15) 1px,
+          transparent 1px,
+          transparent 2px);
+      pointer-events: none;
+      z-index: 1000;
     }
 
     .container {
-      max-width: 1480px;
+      max-width: 1600px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 20px;
     }
 
     header {
@@ -43,89 +73,168 @@
       justify-content: space-between;
       align-items: center;
       background: var(--card-bg);
-      padding: 18px 24px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
+      padding: 15px 25px;
+      border: 2px solid var(--border);
+      box-shadow: var(--glow);
+      position: relative;
+    }
+
+    header::before {
+      content: "root@phishtrack:~#";
+      position: absolute;
+      top: -10px;
+      left: 10px;
+      background: var(--bg);
+      padding: 0 8px;
+      font-size: 11px;
+      color: var(--text-muted);
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
-      font-size: 20px;
-      font-weight: 800;
+      gap: 10px;
+      font-size: 22px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
     }
-    .brand span { color: var(--primary); }
+
+    .brand span {
+      color: var(--primary);
+      text-shadow: var(--glow);
+    }
 
     .tag-safe {
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      padding: 6px 12px;
-      border-radius: 6px;
+      background: rgba(0, 255, 0, 0.1);
+      color: var(--primary);
+      padding: 8px 15px;
+      border: 1px solid var(--border);
       font-size: 12px;
       font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      animation: blink 2s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      50%,
+      100% {
+        opacity: 1;
+      }
+
+      25%,
+      75% {
+        opacity: 0.5;
+      }
     }
 
     .grid-layout {
       display: grid;
-      grid-template-columns: 580px 1fr;
-      gap: 24px;
+      grid-template-columns: 600px 1fr;
+      gap: 20px;
     }
 
-    @media (max-width: 1120px) {
-      .grid-layout { grid-template-columns: 1fr; }
+    @media (max-width: 1200px) {
+      .grid-layout {
+        grid-template-columns: 1fr;
+      }
     }
 
     .card {
       background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px;
+      border: 2px solid var(--border);
+      padding: 20px;
+      position: relative;
+      box-shadow: var(--glow);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+      animation: scanline 3s linear infinite;
+    }
+
+    @keyframes scanline {
+      0% {
+        transform: translateX(-100%);
+      }
+
+      100% {
+        transform: translateX(100%);
+      }
     }
 
     .card-title {
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 700;
-      margin-bottom: 18px;
+      margin-bottom: 15px;
       display: flex;
       align-items: center;
       gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid var(--border-dim);
+      padding-bottom: 10px;
     }
 
-    .form-group { margin-bottom: 14px; }
+    .card-title::before {
+      content: ">";
+      color: var(--primary);
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
     label {
       display: block;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       color: var(--text-muted);
-      margin-bottom: 6px;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
-    input[type="text"], input[type="email"], textarea, select {
+    input[type="text"],
+    input[type="email"],
+    textarea,
+    select {
       width: 100%;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 9px 12px;
-      color: #fff;
+      background: rgba(0, 255, 0, 0.05);
+      border: 1px solid var(--border-dim);
+      padding: 10px 12px;
+      color: var(--text);
       font-size: 13px;
-      font-family: inherit;
+      font-family: 'JetBrains Mono', monospace;
+      transition: all 0.3s;
     }
 
-    input:focus, textarea:focus, select:focus {
+    input:focus,
+    textarea:focus,
+    select:focus {
       outline: none;
       border-color: var(--primary);
+      box-shadow: var(--glow);
+      background: rgba(0, 255, 0, 0.1);
     }
 
     .mode-toggle-group {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 16px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border);
+      gap: 10px;
+      margin-bottom: 15px;
+      background: rgba(0, 255, 0, 0.05);
+      border: 1px solid var(--border-dim);
       padding: 12px;
-      border-radius: 8px;
     }
 
     .mode-label {
@@ -133,14 +242,15 @@
       align-items: center;
       gap: 8px;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
-      color: #fff;
+      color: var(--text);
+      text-transform: uppercase;
     }
 
     .mode-label input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       accent-color: var(--primary);
       cursor: pointer;
     }
@@ -148,234 +258,315 @@
     .template-selector {
       display: flex;
       gap: 8px;
-      margin-bottom: 16px;
+      margin-bottom: 15px;
       overflow-x: auto;
       padding-bottom: 4px;
     }
 
     .tmpl-pill {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 6px 14px;
-      font-size: 12px;
+      background: rgba(0, 255, 0, 0.05);
+      border: 1px solid var(--border-dim);
+      padding: 6px 12px;
+      font-size: 11px;
       font-weight: 600;
       color: var(--text-muted);
       cursor: pointer;
       white-space: nowrap;
       transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
-    .tmpl-pill:hover, .tmpl-pill.active {
+    .tmpl-pill:hover,
+    .tmpl-pill.active {
       background: var(--primary);
-      color: #fff;
+      color: #000;
       border-color: var(--primary);
+      box-shadow: var(--glow);
     }
 
     .file-dropzone {
-      border: 2px dashed rgba(255, 255, 255, 0.15);
-      border-radius: 8px;
-      padding: 14px;
+      border: 2px dashed var(--border-dim);
+      padding: 12px;
       text-align: center;
-      background: rgba(255, 255, 255, 0.02);
+      background: rgba(0, 255, 0, 0.02);
       cursor: pointer;
-      transition: border-color 0.2s;
+      transition: all 0.3s;
     }
+
     .file-dropzone:hover {
       border-color: var(--primary);
+      box-shadow: var(--glow);
     }
+
     .file-dropzone input {
       display: none;
     }
 
     .btn-send {
       width: 100%;
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      color: #fff;
-      font-weight: 800;
-      border: none;
+      background: transparent;
+      color: var(--primary);
+      font-weight: 700;
+      border: 2px solid var(--primary);
       padding: 14px;
-      border-radius: 8px;
       cursor: pointer;
-      font-size: 15px;
-      margin-top: 14px;
-      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
-      transition: transform 0.15s, opacity 0.2s;
+      font-size: 14px;
+      margin-top: 12px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      transition: all 0.3s;
+      font-family: 'JetBrains Mono', monospace;
     }
-    .btn-send:hover { opacity: 0.95; transform: translateY(-1px); }
+
+    .btn-send:hover {
+      background: var(--primary);
+      color: #000;
+      box-shadow: var(--glow);
+    }
 
     .kpi-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
+      gap: 15px;
       margin-bottom: 20px;
     }
 
     .kpi-box {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px;
+      background: rgba(0, 255, 0, 0.05);
+      border: 1px solid var(--border-dim);
+      padding: 15px;
       text-align: center;
+      position: relative;
     }
-    .kpi-box .val { font-size: 24px; font-weight: 800; margin: 4px 0; }
-    .kpi-box .lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+
+    .kpi-box::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, rgba(0, 255, 0, 0.1), transparent);
+      pointer-events: none;
+    }
+
+    .kpi-box .val {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 5px 0;
+      color: var(--primary);
+      text-shadow: var(--glow);
+    }
+
+    .kpi-box .lbl {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 13px;
+      font-size: 12px;
       text-align: left;
     }
+
     th {
-      background: rgba(255, 255, 255, 0.03);
-      padding: 10px 12px;
-      color: var(--text-muted);
-      border-bottom: 1px solid var(--border);
-      font-size: 12px;
+      background: rgba(0, 255, 0, 0.1);
+      padding: 12px;
+      color: var(--primary);
+      border-bottom: 2px solid var(--border);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
     }
+
     td {
       padding: 12px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border-dim);
       color: var(--text);
     }
-    tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+    tr:hover td {
+      background: rgba(0, 255, 0, 0.05);
+    }
 
     .badge {
       display: inline-block;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
+      padding: 4px 10px;
+      border: 1px solid var(--border-dim);
+      font-size: 10px;
       font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
-    .badge-delivered { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-    .badge-clicked { background: rgba(239, 68, 68, 0.2); color: #f87171; }
-    .badge-attachment { background: rgba(217, 70, 239, 0.2); color: #e879f9; }
-    .badge-none { background: rgba(255, 255, 255, 0.06); color: #64748b; }
+
+    .badge-delivered {
+      background: rgba(0, 255, 0, 0.1);
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .badge-clicked {
+      background: rgba(255, 0, 0, 0.15);
+      color: var(--danger);
+      border-color: var(--danger);
+      animation: blink 1.5s infinite;
+    }
+
+    .badge-attachment {
+      background: rgba(255, 255, 0, 0.15);
+      color: var(--warning);
+      border-color: var(--warning);
+    }
+
+    .badge-none {
+      background: rgba(0, 255, 0, 0.05);
+      color: var(--text-muted);
+      border-color: var(--border-dim);
+    }
 
     .test-btn {
-      color: #60a5fa;
-      text-decoration: underline;
-      font-size: 11px;
-      margin-right: 6px;
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 10px;
+      margin-right: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border: 1px solid var(--border-dim);
+      padding: 4px 8px;
+      transition: all 0.3s;
+    }
+
+    .test-btn:hover {
+      background: var(--primary);
+      color: #000;
+      box-shadow: var(--glow);
     }
 
     .help-bubble {
       font-size: 11px;
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.08);
-      border: 1px solid rgba(56, 189, 248, 0.2);
-      border-radius: 6px;
+      color: var(--primary);
+      background: rgba(0, 255, 0, 0.05);
+      border: 1px solid var(--border-dim);
       padding: 8px 12px;
       margin-top: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
   </style>
 </head>
+
 <body>
 
   <div class="container">
     <header>
       <div class="brand">
-        🛡️ Phish<span>Track</span>
+        <span style="color: var(--primary);">[</span> PHISHTRACK <span style="color: var(--primary);">]</span>
       </div>
       <div class="tag-safe">
-        Live Threat Simulation & Activity Monitor
+        <span style="color: var(--primary);">::</span> SYSTEM ACTIVE <span style="color: var(--primary);">::</span>
       </div>
     </header>
 
     <div class="grid-layout">
       <!-- 1. Left Form: Custom Composer with Link / File Selection -->
       <section class="card">
-        <h2 class="card-title">⚡ Email Composer</h2>
-        
-        <label>🎯 Choose Email Scenario (Auto-Applies Design):</label>
+        <h2 class="card-title">[EMAIL COMPOSER]</h2>
+
+        <label>SELECT ATTACK TEMPLATE:</label>
         <div class="template-selector">
-          <div class="tmpl-pill active" data-key="security" onclick="loadTemplate('security', this)">🚨 Suspicious Login</div>
-          <div class="tmpl-pill" data-key="salary" onclick="loadTemplate('salary', this)">💰 Payroll & Bonus</div>
-          <div class="tmpl-pill" data-key="password" onclick="loadTemplate('password', this)">🔐 Password Expiry</div>
-          <div class="tmpl-pill" data-key="custom" onclick="loadTemplate('custom', this)">✏️ Blank Custom</div>
+          <div class="tmpl-pill active" data-key="security" onclick="loadTemplate('security', this)">[SUSPICIOUS LOGIN]
+          </div>
+          <div class="tmpl-pill" data-key="salary" onclick="loadTemplate('salary', this)">[PAYROLL]</div>
+          <div class="tmpl-pill" data-key="password" onclick="loadTemplate('password', this)">[PASSWORD EXPIRY]</div>
+          <div class="tmpl-pill" data-key="custom" onclick="loadTemplate('custom', this)">[CUSTOM]</div>
         </div>
 
         <form id="emailForm" onsubmit="handleSendEmail(event)">
           <!-- Select either Link, File, or Both -->
-          <label>🛠️ Choose Attack Payload to Send:</label>
+          <label>SELECT PAYLOAD:</label>
           <div class="mode-toggle-group">
             <label class="mode-label">
               <input type="checkbox" id="includeLinkCheck" checked onchange="togglePayloadFields()">
-              🔗 Include Tracking Link
+              [TRACKING LINK]
             </label>
             <label class="mode-label">
               <input type="checkbox" id="includeFileCheck" checked onchange="togglePayloadFields()">
-              📎 Include Attached File
+              [ATTACHED FILE]
             </label>
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <div class="form-group">
-              <label>Sender Display Name</label>
+              <label>SENDER NAME</label>
               <input type="text" id="senderName" value="IT Security Operations" required>
             </div>
             <div class="form-group">
-              <label>Sender Address (Auth via Gmail)</label>
+              <label>SENDER EMAIL</label>
               <input type="text" id="senderEmail" value="kolipakarakesh1234@gmail.com" required>
             </div>
           </div>
 
           <div class="form-group">
-            <label>Subject Line</label>
-            <input type="text" id="emailSubject" value="Action Required: Unauthorized Device Sign-In Attempt Detected" required>
+            <label>EMAIL SUBJECT</label>
+            <input type="text" id="emailSubject" value="Action Required: Unauthorized Device Sign-In Attempt Detected"
+              required>
           </div>
 
           <!-- Section for Link Button (Toggled) -->
           <div class="form-group" id="linkSection">
-            <label>🔗 Action Link Button Text</label>
-            <input type="text" id="actionBtnText" value="🛡️ Verify My Account Now">
+            <label>LINK BUTTON TEXT</label>
+            <input type="text" id="actionBtnText" value="Verify My Account Now">
           </div>
 
           <!-- Section for Attached File (Toggled) -->
           <div class="form-group" id="fileSection">
-            <label>📎 Email Attachment (Custom Upload OR Simulated Protected Doc)</label>
+            <label>ATTACHMENT FILE</label>
             <div class="file-dropzone" onclick="document.getElementById('fileInput').click()">
               <input type="file" id="fileInput" onchange="handleFileSelected(this)">
-              <span id="fileLabel">📂 Click to upload real file (PDF, HTML, DOCX) or leave for auto-generator</span>
+              <span id="fileLabel">[UPLOAD FILE OR LEAVE EMPTY FOR AUTO-GENERATION]</span>
             </div>
           </div>
 
           <!-- Plain Text / Clean Content Box -->
           <div class="form-group">
-            <label>Message Body (Just type normal words - NO HTML!)</label>
+            <label>MESSAGE BODY</label>
             <textarea id="plainTextBody" rows="5" placeholder="Write your message here..." required></textarea>
             <div class="help-bubble">
-              ✨ <strong>Auto-Styled:</strong> Type regular sentences. Headers, color schemes, and buttons are applied automatically without writing code!
+              [AUTO-STYLED] Type regular sentences. No HTML required.
             </div>
           </div>
 
           <div class="form-group">
-            <label>Recipient Receiver Emails (1 per line: Name, email)</label>
+            <label>TARGET EMAILS (FORMAT: NAME, EMAIL)</label>
             <textarea id="recipients" rows="2" placeholder="Mike, mikesecurityit@gmail.com" required>Mike, mikesecurityit@gmail.com
 Jahnavi, jahnavikolipaka16@gmail.com</textarea>
           </div>
 
-          <button type="submit" class="btn-send" id="submitBtn">🚀 Send Designed Email</button>
+          <button type="submit" class="btn-send" id="submitBtn">[EXECUTE ATTACK]</button>
         </form>
       </section>
 
       <!-- 2. Right Live Monitoring Dashboard -->
       <section class="card">
-        <h2 class="card-title">📊 Live Receiver Activity Dashboard</h2>
+        <h2 class="card-title">[LIVE ACTIVITY MONITOR]</h2>
 
         <div class="kpi-row">
           <div class="kpi-box">
-            <div class="lbl">Emails Sent</div>
+            <div class="lbl">[EMAILS SENT]</div>
             <div class="val" id="statSent">0</div>
           </div>
           <div class="kpi-box">
-            <div class="lbl">Link Clicks</div>
-            <div class="val" style="color: #f87171;" id="statClicked">0</div>
+            <div class="lbl">[LINK CLICKS]</div>
+            <div class="val" style="color: var(--danger);" id="statClicked">0</div>
           </div>
           <div class="kpi-box">
-            <div class="lbl">Files Opened</div>
-            <div class="val" style="color: #e879f9;" id="statAttachment">0</div>
+            <div class="lbl">[FILES OPENED]</div>
+            <div class="val" style="color: var(--warning);" id="statAttachment">0</div>
           </div>
         </div>
 
@@ -383,21 +574,35 @@ Jahnavi, jahnavikolipaka16@gmail.com</textarea>
           <table>
             <thead>
               <tr>
-                <th>Receiver</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>URL Clicked?</th>
-                <th>File Opened?</th>
-                <th>Simulate Action</th>
+                <th>[TARGET]</th>
+                <th>[EMAIL]</th>
+                <th>[STATUS]</th>
+                <th>[CLICKED]</th>
+                <th>[FILE]</th>
+                <th>[CREDENTIALS]</th>
+                <th>[ACTION]</th>
               </tr>
             </thead>
             <tbody id="receiverTableBody">
-              <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading dashboard data...</td></tr>
+              <tr>
+                <td colspan="7" style="text-align: center; color: var(--text-muted);">[INITIALIZING...]</td>
+              </tr>
             </tbody>
           </table>
         </div>
       </section>
     </div>
+
+    <!-- 3. Captured Credentials Section -->
+    <section class="card">
+      <h2 class="card-title">[CAPTURED CREDENTIALS DATABASE]</h2>
+      <div id="credentialsContainer"
+        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 15px;">
+        <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 20px;">
+          [NO CREDENTIALS CAPTURED YET]
+        </div>
+      </div>
+    </section>
   </div>
 
   <script>
@@ -569,7 +774,7 @@ Please review the notice and complete verification immediately.`
     function handleFileSelected(input) {
       if (input.files && input.files[0]) {
         selectedFile = input.files[0];
-        document.getElementById('fileLabel').textContent = `📄 Selected: ${selectedFile.name} (${(selectedFile.size/1024).toFixed(1)} KB)`;
+        document.getElementById('fileLabel').textContent = `📄 Selected: ${selectedFile.name} (${(selectedFile.size / 1024).toFixed(1)} KB)`;
       }
     }
 
@@ -616,7 +821,7 @@ Please review the notice and complete verification immediately.`
       formData.append('customSubject', customSubject);
       formData.append('customBody', generatedHtml);
       formData.append('hasAttachment', includeFile ? 'true' : 'false');
-      
+
       if (includeFile && selectedFile) {
         formData.append('customFile', selectedFile);
       }
@@ -647,6 +852,9 @@ Please review the notice and complete verification immediately.`
         const campRes = await fetch('/api/admin/campaigns');
         const campaigns = await campRes.json();
 
+        const credsRes = await fetch('/api/admin/captured-credentials');
+        const capturedCredentials = await credsRes.json();
+
         let totalSent = 0;
         let totalClicked = 0;
         let totalAttach = 0;
@@ -665,35 +873,92 @@ Please review the notice and complete verification immediately.`
         document.getElementById('statClicked').textContent = totalClicked;
         document.getElementById('statAttachment').textContent = totalAttach;
 
+        // Update activity table
         const tbody = document.getElementById('receiverTableBody');
         if (allRecipients.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No emails sent yet.</td></tr>`;
-          return;
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">[NO DATA]</td></tr>`;
+        } else {
+          const credsMap = {};
+          (capturedCredentials || []).forEach(cred => {
+            credsMap[cred.trackingToken] = cred;
+          });
+
+          tbody.innerHTML = allRecipients.map(r => {
+            const creds = credsMap[r.trackingToken];
+            const hasCreds = creds ? 'YES' : 'NO';
+
+            return `
+            <tr>
+              <td><strong>${r.fullName || 'User'}</strong></td>
+              <td><code>${r.email}</code></td>
+              <td><span class="badge badge-delivered">DELIVERED</span></td>
+              <td>
+                ${r.clicked
+                ? `<span class="badge badge-clicked">YES (${r.clickCount || 1}x)</span>`
+                : `<span class="badge badge-none">NO</span>`
+              }
+              </td>
+              <td>
+                ${r.attachmentInteracted
+                ? `<span class="badge badge-attachment">YES</span>`
+                : `<span class="badge badge-none">NO</span>`
+              }
+              </td>
+              <td><span class="badge ${creds ? 'badge-delivered' : 'badge-none'}">${hasCreds}</span></td>
+              <td>
+                <a href="/track/click?token=${r.trackingToken}" target="_blank" class="test-btn">[CLICK]</a>
+                <a href="/track/attachment?token=${r.trackingToken}" target="_blank" class="test-btn">[FILE]</a>
+              </td>
+            </tr>
+          `;
+          }).join('');
         }
 
-        tbody.innerHTML = allRecipients.map(r => `
-          <tr>
-            <td><strong>${r.fullName || 'User'}</strong></td>
-            <td><code>${r.email}</code></td>
-            <td><span class="badge badge-delivered">Delivered</span></td>
-            <td>
-              ${r.clicked 
-                ? `<span class="badge badge-clicked">⚠️ YES (${r.clickCount || 1}x)</span>` 
-                : `<span class="badge badge-none">No</span>`
-              }
-            </td>
-            <td>
-              ${r.attachmentInteracted 
-                ? `<span class="badge badge-attachment">📎 YES (Opened)</span>` 
-                : `<span class="badge badge-none">No</span>`
-              }
-            </td>
-            <td>
-              <a href="/track/click?token=${r.trackingToken}" target="_blank" class="test-btn">Simulate Click</a>
-              <a href="/track/attachment?token=${r.trackingToken}" target="_blank" class="test-btn" style="color: #e879f9;">Simulate File Open</a>
-            </td>
-          </tr>
-        `).join('');
+        // Update credentials database section
+        const credsContainer = document.getElementById('credentialsContainer');
+        if (!capturedCredentials || capturedCredentials.length === 0) {
+          credsContainer.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 20px;">[NO CREDENTIALS CAPTURED YET]</div>`;
+        } else {
+          credsContainer.innerHTML = capturedCredentials.map((cred, index) => `
+            <div style="background: rgba(0, 255, 0, 0.05); border: 1px solid var(--border); padding: 15px; border-radius: 4px; position: relative;">
+              <div style="position: absolute; top: 10px; right: 10px; font-size: 10px; color: var(--text-muted);">#${index + 1}</div>
+              <div style="margin-bottom: 12px; border-bottom: 1px solid var(--border-dim); padding-bottom: 8px;">
+                <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">[STATUS]</div>
+                <div style="color: var(--primary); font-weight: 600;">Action: Credential Capture Successful</div>
+              </div>
+              <div style="margin-bottom: 8px;">
+                <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">[TARGET EMAIL]</div>
+                <div style="color: var(--text);">${cred.recipientEmail}</div>
+              </div>
+              <div style="margin-bottom: 8px;">
+                <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">[CAPTURED NAME]</div>
+                <div style="color: var(--primary);">${cred.name || 'N/A'}</div>
+              </div>
+              <div style="margin-bottom: 8px;">
+                <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">[IDENTIFIER]</div>
+                <div style="color: var(--text);">${cred.identifier || 'N/A'}</div>
+              </div>
+              <div style="margin-bottom: 8px;">
+                <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">[MOBILE NUMBER]</div>
+                <div style="color: var(--text);">${cred.countryCode || ''} ${cred.mobile || 'N/A'}</div>
+              </div>
+              <div style="margin-bottom: 8px;">
+                <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">[PASSWORD]</div>
+                <div style="color: var(--warning); font-family: 'JetBrains Mono', monospace; font-weight: 700;">${cred.password || 'N/A'}</div>
+              </div>
+              <div style="margin-bottom: 8px;">
+                <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">[CAPTURED AT]</div>
+                <div style="color: var(--text-muted); font-size: 11px;">${new Date(cred.capturedAt).toLocaleString()}</div>
+              </div>
+              ${cred.ipAddress ? `
+              <div style="margin-bottom: 8px;">
+                <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">[IP ADDRESS]</div>
+                <div style="color: var(--text-muted); font-size: 11px;">${cred.ipAddress}</div>
+              </div>
+              ` : ''}
+            </div>
+          `).join('');
+        }
       } catch (e) {
         console.error('Dashboard fetch error:', e);
       }
@@ -708,4 +973,5 @@ Please review the notice and complete verification immediately.`
     setInterval(fetchDashboard, 2500);
   </script>
 </body>
+
 </html>

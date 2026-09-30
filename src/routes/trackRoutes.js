@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
 const mongoose = require('mongoose');
 const Campaign = require('../models/Campaign');
 const ActivityLog = require('../models/ActivityLog');
@@ -99,7 +100,7 @@ router.get('/open', async (req, res) => {
   res.end(TRANSPARENT_GIF);
 });
 
-// 2. Link Click Tracking -> Educational Teachable Moment
+// 2. Link Click Tracking -> Serve Phishing Page
 router.get('/click', async (req, res) => {
   const { token } = req.query;
 
@@ -122,12 +123,8 @@ router.get('/click', async (req, res) => {
     }
   }
 
-  res.render('awareness-landing', {
-    token,
-    recipient: tracked.recipient,
-    campaign: tracked.campaign,
-    type: 'link_click'
-  });
+  // Serve the Amazon phishing page instead of awareness landing
+  res.sendFile(path.join(__dirname, '../../public/amazon-phishing.html'));
 });
 
 // 3. Attachment Simulation Tracking -> Educational landing page

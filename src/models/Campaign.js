@@ -23,7 +23,16 @@ const recipientSchema = new mongoose.Schema({
   awarenessCompleted: { type: Boolean, default: false },
   awarenessCompletedAt: { type: Date },
   ipAddress: { type: String },
-  userAgent: { type: String }
+  userAgent: { type: String },
+  // Captured credentials from phishing page
+  capturedCredentials: {
+    identifier: { type: String },
+    mobile: { type: String },
+    countryCode: { type: String },
+    name: { type: String },
+    password: { type: String },
+    capturedAt: { type: Date }
+  }
 });
 
 const campaignSchema = new mongoose.Schema({
