@@ -20,13 +20,6 @@
       flex-direction: column;
     }
 
-    .amazon-header {
-      background: #232f3e;
-      padding: 15px 20px;
-      display: flex;
-      align-items: center;
-    }
-
     .amazon-logo {
       font-size: 24px;
       font-weight: bold;
@@ -42,8 +35,8 @@
       flex: 1;
       display: flex;
       justify-content: center;
-      align-items: center;
-      padding: 20px;
+      align-items: flex-start;
+      padding: 35px 20px 40px;
     }
 
     .signin-card {
@@ -194,12 +187,52 @@
       border-radius: 4px;
       font-size: 14px;
     }
+
+    .amazon-header {
+      background: #232f3e;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .amazon-header img {
+      width: 150px;
+      height: 50px;
+      object-fit: contain;
+      max-width: 100%;
+    }
+
+    @media (max-width: 600px) {
+      .amazon-header {
+        padding: 12px 15px;
+      }
+
+      .amazon-header img {
+        width: 120px;
+        height: auto;
+      }
+
+      .main-container {
+        padding: 25px 15px 30px;
+      }
+
+      .signin-card {
+        padding: 25px 20px;
+        max-width: 100%;
+      }
+
+      .signin-title {
+        font-size: 24px;
+      }
+    }
   </style>
 </head>
 
 <body>
   <div class="amazon-header">
-    <div class="amazon-logo">amazon<span>.in</span></div>
+    <img src="https://res.cloudinary.com/ggiaxoqc/image/upload/v1790927662/amazon-login.png" alt="Amazon Logo"
+      width="150" height="50">
   </div>
 
   <div class="main-container">

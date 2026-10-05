@@ -14,6 +14,15 @@ const defaultTemplates = [
       "Generic salutation without official employee reference number",
       "Direct link requesting credential re-entry without multi-factor workflow"
     ],
+    bodyText: `Dear {{name}},
+
+Your network account password is scheduled to expire today at 18:00 EST under the mandatory 90-day compliance cycle.
+
+To avoid disruption to your workstation, VPN access, and corporate email sync, please verify your profile immediately using the secure portal link below.
+
+If you do not take action, your session will be locked out automatically by administrator policies.
+
+This is an automated system notification from the IT Identity Governance Unit.`,
     bodyHtml: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #222;">
         <div style="border-bottom: 2px solid #0078d4; padding-bottom: 12px; margin-bottom: 20px;">
@@ -46,6 +55,17 @@ const defaultTemplates = [
       "Sender domain (account-auth-check.org) is external and spoofed",
       "Direct verification link that redirects outside verified corporate SSO"
     ],
+    bodyText: `Hello {{name}},
+
+We blocked an unauthorized attempt to access your enterprise portal:
+
+IP Address: 185.220.101.42 (Moscow, Russian Federation)
+Timestamp: Just now
+Device: Firefox / Linux x86_64
+
+If this was not you, your credentials may have been compromised. Click below to verify recent sessions.
+
+Failure to respond within 30 minutes will trigger a defensive account suspension.`,
     bodyHtml: `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b;">
         <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 14px; margin-bottom: 20px;">
@@ -81,6 +101,15 @@ const defaultTemplates = [
       "Unsolicited attachment disguised as financial statement",
       "External domain imitating internal finance operations"
     ],
+    bodyText: `Hi {{name}},
+
+Please find attached your updated remuneration adjustment for the current performance period. Due to new tax withholding revisions, you are requested to confirm your direct deposit details.
+
+Simulated Secure Attachment:
+Download Q3_Bonus_DirectDeposit_Details.html
+Size: 34 KB | Verified Clean by Gateway
+
+Alternatively, review your statement online.`,
     bodyHtml: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
         <h3 style="color: #0f766e; border-bottom: 2px solid #0f766e; padding-bottom: 8px;">Finance & Payroll Operations</h3>
@@ -98,6 +127,318 @@ const defaultTemplates = [
         <img src="{{trackingPixel}}" width="1" height="1" style="display:none;" alt="" />
       </div>
     `
+  },
+   { 
+    name: "Amazon Account Security Review", 
+    scenario: "security_alert", 
+    senderName: "Amazon Security", 
+    senderEmail: "security@amazon.com", 
+    subject: "Account review required", 
+    callToActionText: "Review your account safely", 
+    hasAttachment: false, 
+    simulatedAttachmentName: "", 
+    redFlags: [ 
+      "Urgency tactic ('within 24 hours') to pressure quick action", 
+      "Sender domain may be spoofed - always verify sender", 
+      "Generic greeting without account-specific details", 
+      "Direct link requesting account verification without official Amazon workflow" 
+    ], 
+    bodyText: `amazon 
+ 
+Account review required 
+ 
+Hello {{name}}, 
+ 
+Your account has been temporarily restricted while we complete a routine security review. 
+ 
+We noticed an issue with your account details. Please review the security notification. 
+ 
+If we do not receive a response within 24 hours, some account features may be limited. 
+ 
+We hope to see you again soon. 
+ 
+Amazon 
+ 
+Review your account safely 
+Review message`, 
+    bodyHtml: ` 
+     <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #eaeded;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #111;
+    }
+
+    .email-container {
+      width: 600px;
+      max-width: 100%;
+      margin: 0 auto;
+      background-color: #ffffff;
+    }
+
+    .email-content {
+      padding: 45px 55px 60px;
+    }
+
+    .email-body {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      color: #222;
+    }
+
+    .logo {
+      display: block;
+      width: 150px;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .heading {
+      border-bottom: 2px solid #d47800;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+
+    .heading h2 {
+      color: #d47800;
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .email-body p {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .email-body ul {
+      padding-left: 22px;
+      margin: 15px 0;
+    }
+
+    .email-body li {
+      font-size: 16px;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .training-notice {
+      background: #fff4d6;
+      border: 1px solid #e5c36a;
+      padding: 12px;
+      margin: 20px 0;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .footer {
+      border-top: 1px solid #e0e0e0;
+      margin-top: 30px;
+      padding-top: 20px;
+      text-align: center;
+      color: #666;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .footer p {
+      margin: 5px 0;
+    }
+
+    .button {
+      display: inline-block;
+      background-color: #ff9900;
+      color: #ffffff;
+      padding: 12px 24px;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    @media only screen and (max-width: 600px) {
+
+      body {
+        background-color: #ffffff !important;
+      }
+
+      .outer-padding {
+        padding: 10px !important;
+      }
+
+      .email-container {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      .email-content {
+        padding: 25px 20px 35px !important;
+      }
+
+      .email-body {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      .logo {
+        width: 120px !important;
+      }
+
+      .heading h2 {
+        font-size: 20px !important;
+      }
+
+      .email-body p {
+        font-size: 15px !important;
+        line-height: 1.5 !important;
+      }
+
+      .email-body li {
+        font-size: 15px !important;
+        line-height: 1.5 !important;
+        margin-bottom: 8px !important;
+      }
+
+      .button {
+        padding: 12px 20px !important;
+        font-size: 15px !important;
+      }
+
+      .footer {
+        font-size: 10px !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <table width="100%" cellpadding="0" cellspacing="0"
+         style="background-color:#eaeded;">
+    <tr>
+      <td align="center" class="outer-padding" style="padding:30px;">
+
+        <table cellpadding="0" cellspacing="0"
+               class="email-container">
+
+          <tr>
+            <td class="email-content">
+
+              <!-- Logo / Training Header -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding-bottom:30px; text-align:center;">
+                    <img
+                      class="logo"
+                      src="https://res.cloudinary.com/ggiaxoqc/image/upload/f_auto/q_auto/amazon_image.png"
+                      alt="Training Simulation"
+                      width="150"
+                      height="50"
+                    >
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Email Content -->
+              <div class="email-body">
+
+                <div class="heading">
+                  <h2>Customer Support</h2>
+                </div>
+
+                <p>Dear {{name}},</p>
+
+                <p>
+                  The Great Indian Festival is scheduled to begin on
+                  <strong>8 October</strong>. Here is a simulated preview
+                  of the type of promotional message you may encounter.
+                </p>
+
+                <ul>
+                  <li>
+                    <strong>Electronics &amp; Gadgets:</strong> Up to 40% off on
+                    smartphones, laptops, and smart TVs.
+                  </li>
+
+                  <li>
+                    <strong>Home &amp; Kitchen:</strong> Up to 50% off on appliances,
+                    decor, and festive essentials.
+                  </li>
+
+                  <li>
+                    <strong>Fashion &amp; Beauty:</strong> Special offers on selected
+                    clothing and beauty products.
+                  </li>
+
+                  <li>
+                    <strong>Everyday Essentials:</strong> Special savings on selected
+                    grocery and household products.
+                  </li>
+                </ul>
+
+                <p>
+                  Don't wait until the best items sell out. Click below to explore the festive offers.
+                </p>
+
+                <div style="text-align:center; margin:30px 0;">
+                  <a href="{{trackingLink}}" class="button">
+                    Shop Now
+                  </a>
+                </div>
+
+                <p style="font-size:21px; color:#888;">
+                  Happy Shopping!
+                </p>
+
+                <p style="font-size:11px; color:#888;">
+                  Warm Regards,
+                </p>
+
+                <strong>The Amazon Team</strong>
+
+                <!-- Footer -->
+                <div class="footer">
+
+                  <p>
+                    Conditions of Use &nbsp; | &nbsp;
+                    Privacy Notice &nbsp; | &nbsp;
+                    Help
+                  </p>
+
+                  <p>
+                    © 1996–2026, Amazon.com, Inc. or its affiliates
+                  </p>
+
+
+                </div>
+
+              </div>
+
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
+    ` 
   }
 ];
 

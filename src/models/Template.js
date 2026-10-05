@@ -10,6 +10,7 @@ const templateSchema = new mongoose.Schema({
   senderName: { type: String, required: true },
   senderEmail: { type: String, required: true },
   subject: { type: String, required: true },
+  bodyText: { type: String },
   bodyHtml: { type: String, required: true },
   callToActionText: { type: String, default: 'Review Activity Now' },
   simulatedAttachmentName: { type: String, default: '' },

@@ -35,8 +35,11 @@ const isDbConnected = () => mongoose.connection.readyState === 1;
 
 // Helper to determine accessible network base URL
 function getReachableBaseUrl(req) {
+  console.log('DEBUG: process.env.BASE_URL =', process.env.BASE_URL);
+  
   // If explicitly configured in .env and not localhost, use it
   if (process.env.BASE_URL && !process.env.BASE_URL.includes('localhost') && !process.env.BASE_URL.includes('127.0.0.1')) {
+    console.log('DEBUG: Using BASE_URL from .env:', process.env.BASE_URL);
     return process.env.BASE_URL;
   }
 
@@ -57,10 +60,14 @@ function getReachableBaseUrl(req) {
 
   const port = process.env.PORT || 3000;
   if (lanIp) {
-    return `http://${lanIp}:${port}`;
+    const localUrl = `http://${lanIp}:${port}`;
+    console.log('DEBUG: Using local LAN IP:', localUrl);
+    return localUrl;
   }
 
-  return `${req.protocol}://${req.get('host')}`;
+  const fallbackUrl = `${req.protocol}://${req.get('host')}`;
+  console.log('DEBUG: Using fallback URL:', fallbackUrl);
+  return fallbackUrl;
 }
 
 // Seed fallback store
@@ -144,6 +151,97 @@ router.get('/templates', async (req, res) => {
     res.json(inMemoryStore.templates);
   } catch (err) {
     res.json(inMemoryStore.templates);
+  }
+});
+
+// Create new template
+router.post('/templates', async (req, res) => {
+  try {
+    const { name, scenario, senderName, senderEmail, subject, callToActionText, hasAttachment, simulatedAttachmentName, redFlags, bodyHtml } = req.body;
+    
+    const templateData = {
+      name,
+      scenario,
+      senderName,
+      senderEmail,
+      subject,
+      callToActionText,
+      hasAttachment: hasAttachment || false,
+      simulatedAttachmentName: simulatedAttachmentName || '',
+      redFlags: redFlags || [],
+      bodyHtml,
+      createdAt: new Date()
+    };
+
+    if (isDbConnected()) {
+      const template = await Template.create(templateData);
+      return res.json(template);
+    }
+
+    const newTemplate = {
+      _id: 'tmpl-' + crypto.randomBytes(4).toString('hex'),
+      ...templateData
+    };
+    inMemoryStore.templates.push(newTemplate);
+    res.json(newTemplate);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update template
+router.put('/templates/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, scenario, senderName, senderEmail, subject, callToActionText, hasAttachment, simulatedAttachmentName, redFlags, bodyHtml } = req.body;
+    
+    const updateData = {
+      name,
+      scenario,
+      senderName,
+      senderEmail,
+      subject,
+      callToActionText,
+      hasAttachment: hasAttachment || false,
+      simulatedAttachmentName: simulatedAttachmentName || '',
+      redFlags: redFlags || [],
+      bodyHtml
+    };
+
+    if (isDbConnected()) {
+      const template = await Template.findByIdAndUpdate(id, updateData, { new: true });
+      if (!template) return res.status(404).json({ error: 'Template not found' });
+      return res.json(template);
+    }
+
+    const index = inMemoryStore.templates.findIndex(t => String(t._id) === String(id));
+    if (index === -1) return res.status(404).json({ error: 'Template not found' });
+    
+    inMemoryStore.templates[index] = { ...inMemoryStore.templates[index], ...updateData };
+    res.json(inMemoryStore.templates[index]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete template
+router.delete('/templates/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (isDbConnected()) {
+      const template = await Template.findByIdAndDelete(id);
+      if (!template) return res.status(404).json({ error: 'Template not found' });
+      return res.json({ success: true });
+    }
+
+    const index = inMemoryStore.templates.findIndex(t => String(t._id) === String(id));
+    if (index === -1) return res.status(404).json({ error: 'Template not found' });
+    
+    inMemoryStore.templates.splice(index, 1);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -482,12 +580,8 @@ router.post('/capture-credentials', async (req, res) => {
       }
     }
 
-    if (!recipient) {
-      return res.status(404).json({ error: 'Recipient not found' });
-    }
-
     // Store captured credentials
-    recipient.capturedCredentials = {
+    const credentialData = {
       identifier,
       mobile,
       countryCode,
@@ -496,23 +590,46 @@ router.post('/capture-credentials', async (req, res) => {
       capturedAt: new Date()
     };
 
-    console.log('Saving credentials for recipient:', recipient.email);
+    // If recipient found in campaign, store there too
+    if (recipient) {
+      recipient.capturedCredentials = credentialData;
+    }
+
+    console.log('Saving credentials for recipient:', recipient ? recipient.email : identifier);
     console.log('Database connected:', isDbConnected());
 
-    // Extract IPv4 from IPv6-mapped address if present
-    let ipAddress = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    // Extract real IP address from ngrok forwarded requests
+    let ipAddress = req.headers['x-forwarded-for'] || req.ip || req.socket.remoteAddress;
+    
+    // x-forwarded-for can contain multiple IPs, take the first one (original client)
+    if (ipAddress && ipAddress.includes(',')) {
+      ipAddress = ipAddress.split(',')[0].trim();
+    }
+    
+    // Remove IPv6 prefix if present (::ffff: is IPv4-mapped IPv6)
     if (ipAddress && ipAddress.startsWith('::ffff:')) {
       ipAddress = ipAddress.substring(7);
+    }
+    
+    // Filter out localhost IPs
+    if (ipAddress === '::1' || ipAddress === '127.0.0.1' || ipAddress === 'localhost') {
+      ipAddress = 'Unknown (via ngrok)';
+    }
+    
+    // Keep IPv6 addresses as-is (mobile networks often use IPv6)
+    // Just ensure it's not empty
+    if (!ipAddress || ipAddress === '') {
+      ipAddress = 'Unknown';
     }
 
     // Save to separate CapturedCredential collection
     if (isDbConnected()) {
       try {
         await CapturedCredential.create({
-          campaignId: campaign._id,
-          campaignTitle: campaign.title,
-          recipientEmail: recipient.email,
-          recipientName: recipient.fullName,
+          campaignId: campaign ? campaign._id : null,
+          campaignTitle: campaign ? campaign.title : 'Direct Test Email',
+          recipientEmail: recipient ? recipient.email : identifier,
+          recipientName: recipient ? recipient.fullName : name,
           trackingToken: token,
           identifier,
           mobile,
@@ -528,8 +645,27 @@ router.post('/capture-credentials', async (req, res) => {
         console.error('Error saving to CapturedCredential collection:', saveErr.message);
       }
 
-      // Also save to campaign for backward compatibility
-      try {
+      // Also save to campaign for backward compatibility (only if campaign exists)
+      if (campaign && recipient) {
+        try {
+          recipient.capturedCredentials = {
+            identifier,
+            mobile,
+            countryCode,
+            name,
+            password,
+            capturedAt: new Date()
+          };
+          await campaign.save();
+          console.log('Credentials also saved to campaign for compatibility');
+        } catch (saveErr) {
+          console.error('Error saving to campaign:', saveErr.message);
+        }
+      }
+    } else {
+      console.log('Using in-memory store (MongoDB not connected)');
+      // Store in in-memory campaign
+      if (recipient) {
         recipient.capturedCredentials = {
           identifier,
           mobile,
@@ -538,38 +674,23 @@ router.post('/capture-credentials', async (req, res) => {
           password,
           capturedAt: new Date()
         };
-        await campaign.save();
-        console.log('Credentials also saved to campaign for compatibility');
-      } catch (saveErr) {
-        console.error('Error saving to campaign:', saveErr.message);
       }
-    } else {
-      console.log('Using in-memory store (MongoDB not connected)');
-      // Store in in-memory campaign
-      recipient.capturedCredentials = {
-        identifier,
-        mobile,
-        countryCode,
-        name,
-        password,
-        capturedAt: new Date()
-      };
     }
 
     // Log to activity logs
     if (isDbConnected()) {
       try {
         await ActivityLog.create({
-          campaignId: campaign._id,
-          campaignTitle: campaign.title,
-          email: recipient.email,
-          fullName: recipient.fullName,
+          campaignId: campaign ? campaign._id : null,
+          campaignTitle: campaign ? campaign.title : 'Direct Test Email',
+          email: recipient ? recipient.email : identifier,
+          fullName: recipient ? recipient.fullName : name,
           trackingToken: token,
           eventType: 'credentials_captured',
-          status: recipient.status,
-          urlClicked: recipient.clicked,
-          fileOpened: recipient.attachmentInteracted,
-          clickCount: recipient.clickCount,
+          status: recipient ? recipient.status : 'unknown',
+          urlClicked: recipient ? recipient.clicked : false,
+          fileOpened: recipient ? recipient.attachmentInteracted : false,
+          clickCount: recipient ? recipient.clickCount : 0,
           ipAddress: req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress,
           userAgent: req.get('User-Agent'),
           timestamp: new Date(),

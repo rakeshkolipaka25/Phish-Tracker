@@ -122,9 +122,6 @@ class EmailService {
     try {
       const { transporter, isEthereal, fromEmail } = await this.getTransporter();
 
-      console.log(`[EMAIL] Attempting to send email to ${recipient.email} using ${isEthereal ? 'Ethereal' : 'SMTP'} transporter`);
-      console.log(`[EMAIL] SMTP Config: Host=${process.env.SMTP_HOST}, Port=${process.env.SMTP_PORT}, Secure=${process.env.SMTP_SECURE}`);
-
       // Wrap in clean styling container with invisible web beacon
       const fullHtml = `
         ${body}
@@ -137,17 +134,21 @@ class EmailService {
         to: recipient.email,
         subject: template.subject,
         html: fullHtml,
-        attachments: attachments
+        attachments: attachments,
+        headers: {
+          'X-Priority': '3',
+          'X-Mailer': 'PhishAware Platform',
+          'X-MS-Exchange-Organization-SCL': '-1',
+          'List-Unsubscribe': `<mailto:${fromEmail}?subject=unsubscribe>`,
+          'Precedence': 'bulk'
+        }
       };
 
       const info = await transporter.sendMail(mailOptions);
 
-      console.log(`[EMAIL] Successfully sent to ${recipient.email}. Message ID: ${info.messageId}`);
-
       let previewUrl = null;
       if (isEthereal) {
         previewUrl = nodemailer.getTestMessageUrl(info);
-        console.log(`[EMAIL] Ethereal preview URL: ${previewUrl}`);
       }
 
       return {
@@ -157,8 +158,7 @@ class EmailService {
         mode: isEthereal ? 'ethereal' : 'smtp'
       };
     } catch (err) {
-      console.error(`[EMAIL ERROR] Failed for ${recipient.email}:`, err.message);
-      console.error(`[EMAIL ERROR] Full error:`, err);
+      console.error(`Email delivery failed for ${recipient.email}:`, err.message);
       return { success: false, error: err.message };
     }
   }

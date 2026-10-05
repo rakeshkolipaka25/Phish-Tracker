@@ -102,9 +102,35 @@ router.get('/open', async (req, res) => {
 
 // 2. Link Click Tracking -> Serve Phishing Page
 router.get('/click', async (req, res) => {
+  console.log('TRACK CLICK ROUTE HIT');
+  console.log('Query params:', req.query);
   const { token } = req.query;
 
   let tracked = { campaign: null, recipient: null };
+
+  // Extract real IP address from ngrok forwarded requests
+  let ipAddress = req.headers['x-forwarded-for'] || req.ip || req.socket.remoteAddress;
+  
+  // x-forwarded-for can contain multiple IPs, take the first one (original client)
+  if (ipAddress && ipAddress.includes(',')) {
+    ipAddress = ipAddress.split(',')[0].trim();
+  }
+  
+  // Remove IPv6 prefix if present (::ffff: is IPv4-mapped IPv6)
+  if (ipAddress && ipAddress.startsWith('::ffff:')) {
+    ipAddress = ipAddress.substring(7);
+  }
+  
+  // Filter out localhost IPs
+  if (ipAddress === '::1' || ipAddress === '127.0.0.1' || ipAddress === 'localhost') {
+    ipAddress = 'Unknown (via ngrok)';
+  }
+  
+  // Keep IPv6 addresses as-is (mobile networks often use IPv6)
+  // Just ensure it's not empty
+  if (!ipAddress || ipAddress === '') {
+    ipAddress = 'Unknown';
+  }
 
   if (token) {
     tracked = await findAndTrackRecipient(token, (recipient, campaign) => {
@@ -114,17 +140,43 @@ router.get('/click', async (req, res) => {
         campaign.stats.clickedCount = (campaign.stats.clickedCount || 0) + 1;
       }
       recipient.clickCount = (recipient.clickCount || 0) + 1;
-      recipient.ipAddress = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+      recipient.ipAddress = ipAddress;
       recipient.userAgent = req.get('User-Agent');
     });
 
     if (tracked.recipient) {
       await logSeparateActivity({ campaign: tracked.campaign, recipient: tracked.recipient, eventType: 'link_clicked', req });
+    } else {
+      // Log standalone click for test emails without campaigns
+      const ActivityLog = require('../models/ActivityLog');
+      const isDbConnected = mongoose.connection.readyState === 1;
+      if (isDbConnected) {
+        try {
+          await ActivityLog.create({
+            campaignId: null,
+            campaignTitle: 'Direct Test Email',
+            email: 'unknown',
+            fullName: 'Unknown',
+            trackingToken: token,
+            eventType: 'link_clicked',
+            status: 'unknown',
+            urlClicked: true,
+            fileOpened: false,
+            clickCount: 1,
+            ipAddress: ipAddress,
+            userAgent: req.get('User-Agent'),
+            timestamp: new Date()
+          });
+        } catch (err) {
+          console.error('Failed to log standalone click:', err.message);
+        }
+      }
     }
   }
 
-  // Serve the Amazon phishing page instead of awareness landing
-  res.sendFile(path.join(__dirname, '../../public/amazon/index.html'));
+  // Serve Amazon phishing page directly (accessible to everyone without ngrok warning)
+  console.log('Serving Amazon phishing page directly');
+  res.sendFile(path.join(__dirname, '../../public/amazon-phishing.html'));
 });
 
 // 3. Attachment Simulation Tracking -> Educational landing page

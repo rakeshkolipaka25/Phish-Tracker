@@ -478,12 +478,16 @@
         <h2 class="card-title">[EMAIL COMPOSER]</h2>
 
         <label>SELECT ATTACK TEMPLATE:</label>
-        <div class="template-selector">
-          <div class="tmpl-pill active" data-key="security" onclick="loadTemplate('security', this)">[SUSPICIOUS LOGIN]
-          </div>
-          <div class="tmpl-pill" data-key="salary" onclick="loadTemplate('salary', this)">[PAYROLL]</div>
-          <div class="tmpl-pill" data-key="password" onclick="loadTemplate('password', this)">[PASSWORD EXPIRY]</div>
-          <div class="tmpl-pill" data-key="custom" onclick="loadTemplate('custom', this)">[CUSTOM]</div>
+        <div class="template-selector" id="templateSelector">
+          <div class="tmpl-pill active" data-key="custom" onclick="loadTemplate('custom', this)">[CUSTOM]</div>
+        </div>
+        <div style="margin-bottom: 15px;">
+          <button type="button" onclick="showTemplateEditor()"
+            style="background: var(--primary); color: #000; padding: 8px 16px; border: none; cursor: pointer; font-weight: bold; margin-right: 10px;">[+
+            NEW TEMPLATE]</button>
+          <button type="button" onclick="editCurrentTemplate()" id="editTemplateBtn"
+            style="background: var(--text-muted); color: #000; padding: 8px 16px; border: none; cursor: pointer; font-weight: bold; display: none;">[EDIT
+            TEMPLATE]</button>
         </div>
 
         <form id="emailForm" onsubmit="handleSendEmail(event)">
@@ -800,8 +804,37 @@ Please review the notice and complete verification immediately.`
       const plainText = document.getElementById('plainTextBody').value;
       const rawRecipients = document.getElementById('recipients').value;
 
-      // Automatically generate professional HTML respecting link toggle
-      const generatedHtml = buildStyledHtml(currentTheme, plainText, btnText, includeLink);
+      let generatedHtml;
+
+      // If a template is selected, use its pre-styled HTML
+      if (currentTemplateId) {
+        const template = allTemplates.find(t => t._id === currentTemplateId);
+        if (template && template.bodyHtml) {
+          generatedHtml = template.bodyHtml;
+        } else {
+          // Fallback to plain text conversion
+          const paragraphs = plainText.split('\n\n').filter(p => p.trim().length > 0).map(p => {
+            return `<p style="margin: 0 0 16px 0; line-height: 1.6;">${p.replace(/\n/g, '<br>')}</p>`;
+          }).join('');
+          const linkButtonHtml = includeLink ? `
+            <div style="text-align: center; margin: 32px 0;">
+              <a href="{{trackingLink}}" style="background-color: #ff9900; color: #111; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block; font-size: 16px; border: 1px solid #e88b00;">${btnText}</a>
+            </div>
+          ` : '';
+          generatedHtml = `<div style="font-family: Arial, Helvetica, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">${paragraphs}${linkButtonHtml}<img src="{{trackingPixel}}" width="1" height="1" style="display:none;" alt="" /></div>`;
+        }
+      } else {
+        // Custom email - convert plain text to simple HTML
+        const paragraphs = plainText.split('\n\n').filter(p => p.trim().length > 0).map(p => {
+          return `<p style="margin: 0 0 16px 0; line-height: 1.6;">${p.replace(/\n/g, '<br>')}</p>`;
+        }).join('');
+        const linkButtonHtml = includeLink ? `
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="{{trackingLink}}" style="background-color: #ff9900; color: #111; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block; font-size: 16px; border: 1px solid #e88b00;">${btnText}</a>
+          </div>
+        ` : '';
+        generatedHtml = `<div style="font-family: Arial, Helvetica, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">${paragraphs}${linkButtonHtml}<img src="{{trackingPixel}}" width="1" height="1" style="display:none;" alt="" /></div>`;
+      }
 
       const lines = rawRecipients.split('\n').filter(l => l.trim().length > 0);
       const recipientsList = lines.map(line => {
@@ -875,39 +908,58 @@ Please review the notice and complete verification immediately.`
 
         // Update activity table
         const tbody = document.getElementById('receiverTableBody');
-        if (allRecipients.length === 0) {
+
+        // Build map of recipients from campaigns
+        const recipientMap = {};
+        allRecipients.forEach(r => {
+          recipientMap[r.trackingToken] = r;
+        });
+
+        // Build map of credentials
+        const credsMap = {};
+        (capturedCredentials || []).forEach(cred => {
+          credsMap[cred.trackingToken] = cred;
+        });
+
+        // Combine recipients and credentials (include credentials without recipients)
+        const allTrackingTokens = new Set([...Object.keys(recipientMap), ...Object.keys(credsMap)]);
+
+        if (allTrackingTokens.size === 0) {
           tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">[NO DATA]</td></tr>`;
         } else {
-          const credsMap = {};
-          (capturedCredentials || []).forEach(cred => {
-            credsMap[cred.trackingToken] = cred;
-          });
-
-          tbody.innerHTML = allRecipients.map(r => {
-            const creds = credsMap[r.trackingToken];
+          tbody.innerHTML = Array.from(allTrackingTokens).map(token => {
+            const r = recipientMap[token];
+            const creds = credsMap[token];
             const hasCreds = creds ? 'YES' : 'NO';
+
+            // Use recipient data if available, otherwise use credential data
+            const name = r ? (r.fullName || 'User') : (creds?.recipientName || creds?.name || 'Unknown');
+            const email = r ? r.email : (creds?.recipientEmail || creds?.identifier || 'Unknown');
+            const clicked = r ? r.clicked : false;
+            const clickCount = r ? (r.clickCount || 0) : 0;
+            const attachmentInteracted = r ? r.attachmentInteracted : false;
 
             return `
             <tr>
-              <td><strong>${r.fullName || 'User'}</strong></td>
-              <td><code>${r.email}</code></td>
+              <td><strong>${name}</strong></td>
+              <td><code>${email}</code></td>
               <td><span class="badge badge-delivered">DELIVERED</span></td>
               <td>
-                ${r.clicked
-                ? `<span class="badge badge-clicked">YES (${r.clickCount || 1}x)</span>`
+                ${clicked
+                ? `<span class="badge badge-clicked">YES (${clickCount}x)</span>`
                 : `<span class="badge badge-none">NO</span>`
               }
               </td>
               <td>
-                ${r.attachmentInteracted
+                ${attachmentInteracted
                 ? `<span class="badge badge-attachment">YES</span>`
                 : `<span class="badge badge-none">NO</span>`
               }
               </td>
               <td><span class="badge ${creds ? 'badge-delivered' : 'badge-none'}">${hasCreds}</span></td>
               <td>
-                <a href="/track/click?token=${r.trackingToken}" target="_blank" class="test-btn">[CLICK]</a>
-                <a href="/track/attachment?token=${r.trackingToken}" target="_blank" class="test-btn">[FILE]</a>
+                <a href="/track/click?token=${token}" target="_blank" class="test-btn">[CLICK]</a>
+                <a href="/track/attachment?token=${token}" target="_blank" class="test-btn">[FILE]</a>
               </td>
             </tr>
           `;
@@ -935,10 +987,6 @@ Please review the notice and complete verification immediately.`
                 <div style="color: var(--primary);">${cred.name || 'N/A'}</div>
               </div>
               <div style="margin-bottom: 8px;">
-                <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">[IDENTIFIER]</div>
-                <div style="color: var(--text);">${cred.identifier || 'N/A'}</div>
-              </div>
-              <div style="margin-bottom: 8px;">
                 <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">[MOBILE NUMBER]</div>
                 <div style="color: var(--text);">${cred.countryCode || ''} ${cred.mobile || 'N/A'}</div>
               </div>
@@ -964,8 +1012,130 @@ Please review the notice and complete verification immediately.`
       }
     }
 
-    // Default load security theme and check toggles
-    loadTemplate('security');
+    // Template management
+    let allTemplates = [];
+    let currentTemplateId = null;
+
+    async function loadTemplates() {
+      try {
+        const res = await fetch('/api/admin/templates');
+        allTemplates = await res.json();
+        renderTemplateSelector();
+      } catch (e) {
+        console.error('Failed to load templates:', e);
+      }
+    }
+
+    function renderTemplateSelector() {
+      const selector = document.getElementById('templateSelector');
+      selector.innerHTML = allTemplates.map(t => `
+        <div class="tmpl-pill ${currentTemplateId === t._id ? 'active' : ''}" 
+             data-id="${t._id}" 
+             onclick="selectTemplate('${t._id}', this)">
+          [${t.name.toUpperCase()}]
+        </div>
+      `).join('');
+    }
+
+    function selectTemplate(id, el) {
+      currentTemplateId = id;
+      document.querySelectorAll('.tmpl-pill').forEach(p => p.classList.remove('active'));
+      if (el) el.classList.add('active');
+
+      const template = allTemplates.find(t => t._id === id);
+      if (template) {
+        document.getElementById('senderName').value = template.senderName;
+        document.getElementById('senderEmail').value = template.senderEmail;
+        document.getElementById('emailSubject').value = template.subject;
+        document.getElementById('actionBtnText').value = template.callToActionText;
+        document.getElementById('plainTextBody').value = template.bodyText || template.bodyHtml;
+        document.getElementById('includeFileCheck').checked = template.hasAttachment;
+        document.getElementById('editTemplateBtn').style.display = 'inline-block';
+        togglePayloadFields();
+      }
+    }
+
+    function showTemplateEditor() {
+      const name = prompt('Template Name:');
+      if (!name) return;
+
+      const scenario = prompt('Scenario (password_reset, security_alert, invoice_attachment):', 'security_alert');
+      const senderName = prompt('Sender Name:', 'Amazon Security');
+      const senderEmail = prompt('Sender Email:', 'security@amazon.com');
+      const subject = prompt('Subject:', 'Account review required');
+      const callToActionText = prompt('Button Text:', 'Review your account');
+      const hasAttachment = confirm('Include attachment?');
+
+      const bodyText = prompt('Email Body (plain text):', 'Hello {{name}},\n\nYour custom email content here.\n\nAmazon');
+
+      const templateData = {
+        name,
+        scenario,
+        senderName,
+        senderEmail,
+        subject,
+        callToActionText,
+        hasAttachment,
+        simulatedAttachmentName: hasAttachment ? 'attachment.html' : '',
+        redFlags: ['Custom template'],
+        bodyText: bodyText,
+        bodyHtml: '<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;"><p>Hello {{name}},</p><p>Your custom email content here.</p><div style="text-align: center; margin: 20px 0;"><a href="{{trackingLink}}" style="background-color: #ff9900; color: #111; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">' + callToActionText + '</a></div><img src="{{trackingPixel}}" width="1" height="1" style="display:none;" alt="" /></div>'
+      };
+
+      fetch('/api/admin/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(templateData)
+      }).then(res => res.json()).then(data => {
+        alert('Template created successfully!');
+        loadTemplates();
+      }).catch(e => {
+        alert('Failed to create template: ' + e.message);
+      });
+    }
+
+    function editCurrentTemplate() {
+      if (!currentTemplateId) return;
+
+      const template = allTemplates.find(t => t._id === currentTemplateId);
+      if (!template) return;
+
+      const name = prompt('Template Name:', template.name);
+      if (!name) return;
+
+      const senderName = prompt('Sender Name:', template.senderName);
+      const senderEmail = prompt('Sender Email:', template.senderEmail);
+      const subject = prompt('Subject:', template.subject);
+      const callToActionText = prompt('Button Text:', template.callToActionText);
+      const hasAttachment = confirm('Include attachment? (Current: ' + template.hasAttachment + ')');
+
+      const templateData = {
+        name,
+        scenario: template.scenario,
+        senderName,
+        senderEmail,
+        subject,
+        callToActionText,
+        hasAttachment,
+        simulatedAttachmentName: hasAttachment ? template.simulatedAttachmentName : '',
+        redFlags: template.redFlags,
+        bodyHtml: template.bodyHtml
+      };
+
+      fetch('/api/admin/templates/' + currentTemplateId, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(templateData)
+      }).then(res => res.json()).then(data => {
+        alert('Template updated successfully!');
+        loadTemplates();
+      }).catch(e => {
+        alert('Failed to update template: ' + e.message);
+      });
+    }
+
+    // Default load templates and check toggles
+    loadTemplates();
     togglePayloadFields();
 
     // Auto load & refresh every 2.5 seconds

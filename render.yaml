@@ -2,12 +2,14 @@ services:
   - type: web
     name: phishingmail
     env: node
-    region: singapore
-    plan: free
     buildCommand: npm install
     startCommand: node server.js
     envVars:
-      - key: NODE_ENV
-        value: production
       - key: PORT
         value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: BASE_URL
+        sync: false
+    plan: free
+    region: oregon
