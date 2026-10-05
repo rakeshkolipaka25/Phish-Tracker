@@ -445,7 +445,7 @@ Review message`,
     scenario: "festive_gift",
     senderName: "Rakesh Kolipaka",
     senderEmail: "kolipakarakesh1234@gmail.com",
-    subject: "Microcare gift for Dussehra",
+    subject: "Happy Dussehra",
     callToActionText: "Amazon Sign In",
     hasAttachment: false,
     simulatedAttachmentName: "",
@@ -479,7 +479,7 @@ MD, Microcare`,
         
         <p>Please verify your employee details and redeem your voucher using the link below:</p>
         
-        <p><a href="{{trackingLink}}">Amazon Sign In</a></p>
+        <p><a href="{{trackingLink}}" style="display: inline-block; background-color: #ff9900; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 16px;">Amazon Sign In</a></p>
         
         <p>Wishing you and your family a joyful and prosperous Dussehra.</p>
         
