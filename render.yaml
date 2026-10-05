@@ -26,5 +26,7 @@ services:
         sync: false
       - key: SMTP_FROM
         value: kolipakarakesh1234@gmail.com
+      - key: DASHBOARD_PASSWORD
+        value: Microcare@2024
     plan: free
     region: oregon
