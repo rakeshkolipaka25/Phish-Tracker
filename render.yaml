@@ -7,7 +7,24 @@ services:
     envVars:
       - key: PORT
         value: 10000
+      - key: BASE_URL
+        value: https://phishingmail.onrender.com
       - key: MONGODB_URI
+        value: mongodb+srv://Rakeshkolipaka:R%40kesh630@cluster0.e1idkwr.mongodb.net/phishaware?retryWrites=true&w=majority&appName=Cluster0
         sync: false
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "465"
+      - key: SMTP_SECURE
+        value: "true"
+      - key: SMTP_USER
+        value: kolipakarakesh1234@gmail.com
+        sync: false
+      - key: SMTP_PASS
+        value: ugecljshegqfmlgz
+        sync: false
+      - key: SMTP_FROM
+        value: kolipakarakesh1234@gmail.com
     plan: free
     region: oregon
