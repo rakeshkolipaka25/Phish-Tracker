@@ -1,0 +1,9 @@
+{
+  "name": "netlify-functions",
+  "version": "1.0.0",
+  "description": "Netlify functions for credential capture",
+  "main": "capture-credentials.js",
+  "dependencies": {
+    "mongoose": "^9.10.2"
+  }
+}
