@@ -4,7 +4,7 @@ const templateSchema = new mongoose.Schema({
   name: { type: String, required: true },
   scenario: { 
     type: String, 
-    enum: ['password_reset', 'account_verification', 'security_alert', 'urgent_hr', 'invoice_attachment'],
+    enum: ['password_reset', 'account_verification', 'security_alert', 'urgent_hr', 'invoice_attachment', 'festive_gift'],
     default: 'password_reset'
   },
   senderName: { type: String, required: true },
