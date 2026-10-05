@@ -12,8 +12,8 @@ const defaultTemplates = require('./src/data/defaultTemplates');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Check if running on Render (production)
-const isProduction = process.env.BASE_URL && process.env.BASE_URL.includes('onrender.com');
+// Check if running on Render (production) - check actual hostname, not BASE_URL
+const isProduction = process.env.RENDER || process.env.RENDER_SERVICE_ID || (process.env.BASE_URL && process.env.BASE_URL.includes('onrender.com') && process.env.PORT === '10000');
 
 // Middleware
 app.use(cors());
@@ -113,7 +113,7 @@ async function startServer() {
       console.log(`📡 URL: https://phish-tracker-1.onrender.com`);
       console.log(`📊 Dashboard: Disabled (use localhost)`);
     } else {
-      console.log(`�🛡️  PhishAware - Phishing Simulation Platform Running`);
+      console.log(`��️  PhishAware - Phishing Simulation Platform Running`);
       console.log(`📡 URL: http://localhost:${PORT}`);
       console.log(`📊 Admin Dashboard: http://localhost:${PORT}/index.html`);
     }
