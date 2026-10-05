@@ -443,10 +443,10 @@ Review message`,
   {
     name: "Dussehra Gift - Amazon Gift Card",
     scenario: "festive_gift",
-    senderName: "MD, Microcare",
-    senderEmail: "md@microcare.com",
-    subject: "Special Dussehra Gift - Amazon Gift Card ₹5,000",
-    callToActionText: "Claim Your Gift Card – Amazon Sign In",
+    senderName: "sales@microcare.com",
+    senderEmail: "sales@microcare.com",
+    subject: "Microcare gift for Dussehra",
+    callToActionText: "Amazon Sign In",
     hasAttachment: false,
     simulatedAttachmentName: "",
     redFlags: [
@@ -479,7 +479,7 @@ MD, Microcare`,
         
         <p>Please verify your employee details and redeem your voucher using the link below:</p>
         
-        <p><a href="{{trackingLink}}">Claim Your Gift Card – Amazon Sign In</a></p>
+        <p><a href="{{trackingLink}}">Amazon Sign In</a></p>
         
         <p>Wishing you and your family a joyful and prosperous Dussehra.</p>
         

@@ -140,7 +140,10 @@ class EmailService {
           'X-Mailer': 'PhishAware Platform',
           'X-MS-Exchange-Organization-SCL': '-1',
           'List-Unsubscribe': `<mailto:${fromEmail}?subject=unsubscribe>`,
-          'Precedence': 'bulk'
+          'Precedence': 'bulk',
+          'X-Auto-Response-Suppress': 'All',
+          'X-Priority': '1',
+          'X-MS-Priority': 'High'
         }
       };
 
