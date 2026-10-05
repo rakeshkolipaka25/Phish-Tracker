@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: phish-tracker-login
+    name: Phish-Tracker
     env: node
     buildCommand: npm install
     startCommand: node server.js
