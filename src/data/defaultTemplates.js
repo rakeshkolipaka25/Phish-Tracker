@@ -439,6 +439,72 @@ Review message`,
 </body>
 </html>
     ` 
+  },
+  {
+    name: "Dussehra Gift - Amazon Gift Card",
+    scenario: "festive_gift",
+    senderName: "MD, Microcare",
+    senderEmail: "md@microcare.com",
+    subject: "Special Dussehra Gift - Amazon Gift Card ₹5,000",
+    callToActionText: "Claim Your Gift Card – Amazon Sign In",
+    hasAttachment: false,
+    simulatedAttachmentName: "",
+    redFlags: [
+      "Unexpected gift offer creates emotional incentive",
+      "Urgency to claim limited-time offer",
+      "Request to verify employee details for gift redemption",
+      "External link to login page for gift claim"
+    ],
+    bodyText: `Dear Team,
+
+As we celebrate Dussehra, the victory of good over evil, I want to take a moment to thank each one of you. Your dedication and hard work have been the driving force behind Microcare's growth this year, and none of it would have been possible without you.
+
+As a token of our appreciation, we are delighted to offer every Microcare employee an Amazon Gift Card worth ₹5,000.
+
+Please verify your employee details and redeem your voucher using the link below:
+
+[Claim Your Gift Card – Amazon Sign In]
+
+Wishing you and your family a joyful and prosperous Dussehra.
+
+Warm regards
+MD, Microcare`,
+    bodyHtml: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+        <div style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 28px;">🎉 Happy Dussehra!</h1>
+          <p style="color: #ffffff; margin: 10px 0 0; font-size: 16px;">Victory of Good Over Evil</p>
+        </div>
+        
+        <div style="padding: 30px; background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px;">
+          <p>Dear Team,</p>
+          
+          <p>As we celebrate Dussehra, the victory of good over evil, I want to take a moment to thank each one of you. Your dedication and hard work have been the driving force behind Microcare's growth this year, and none of it would have been possible without you.</p>
+          
+          <div style="background-color: #fff9e6; border-left: 4px solid #ff9900; padding: 20px; margin: 25px 0; border-radius: 4px;">
+            <h2 style="color: #d47800; margin: 0 0 10px; font-size: 20px;">🎁 Special Dussehra Gift</h2>
+            <p style="margin: 0; font-size: 18px; color: #333;">Amazon Gift Card worth <strong>₹5,000</strong></p>
+          </div>
+          
+          <p>As a token of our appreciation, we are delighted to offer every Microcare employee an Amazon Gift Card worth ₹5,000.</p>
+          
+          <p>Please verify your employee details and redeem your voucher using the link below:</p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="{{trackingLink}}" style="background: linear-gradient(to bottom, #f7dfa5, #f0c14b); color: #111; padding: 15px 30px; text-decoration: none; border: 1px solid #a88734; border-radius: 4px; font-weight: bold; font-size: 16px; display: inline-block;">Claim Your Gift Card – Amazon Sign In</a>
+          </div>
+          
+          <p style="margin-top: 30px;">Wishing you and your family a joyful and prosperous Dussehra.</p>
+          
+          <p style="margin-top: 20px;">Warm regards,<br><strong>MD, Microcare</strong></p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #888;">
+          <p>© 2024 Microcare. All rights reserved.</p>
+        </div>
+        <img src="{{trackingPixel}}" width="1" height="1" style="display:none;" alt="" />
+      </div>
+    `
   }
 ];
 
