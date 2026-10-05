@@ -12,6 +12,9 @@ const defaultTemplates = require('./src/data/defaultTemplates');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Check if running on Render (production)
+const isProduction = process.env.BASE_URL && process.env.BASE_URL.includes('onrender.com');
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -20,32 +23,11 @@ app.use(express.urlencoded({ extended: true }));
 // Trust proxy for Render/other cloud platforms
 app.set('trust proxy', true);
 
-// Authentication middleware for dashboard
-const DASHBOARD_PASSWORD = process.env.DASHBOARD_PASSWORD || 'admin123';
-
-function requireAuth(req, res, next) {
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader) {
-    res.setHeader('WWW-Authenticate', 'Basic');
-    return res.status(401).send('Authentication required');
-  }
-  
-  const auth = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-  const user = auth[0];
-  const pass = auth[1];
-  
-  if (pass === DASHBOARD_PASSWORD) {
-    return next();
-  }
-  
-  res.setHeader('WWW-Authenticate', 'Basic');
-  res.status(401).send('Invalid credentials');
+// View engine for awareness education page (only for localhost)
+if (!isProduction) {
+  app.set('views', path.join(__dirname, 'src', 'views'));
+  app.set('view engine', 'ejs');
 }
-
-// View engine for awareness education page
-app.set('views', path.join(__dirname, 'src', 'views'));
-app.set('view engine', 'ejs');
 
 // Serve Amazon phishing page (before static middleware to take precedence)
 app.get('/amazon/index.html', (req, res) => {
@@ -81,17 +63,18 @@ app.get('/amazon_image.png', (req, res) => {
   });
 });
 
-// Static assets (Dashboard UI, CSS, JS) - Protected
-app.use('/index.html', requireAuth, express.static(path.join(__dirname, 'public')));
-app.use('/css', requireAuth, express.static(path.join(__dirname, 'public/css')));
-app.use('/js', requireAuth, express.static(path.join(__dirname, 'public/js')));
-
-// Public static assets (images, etc.)
-app.use(express.static(path.join(__dirname, 'public')));
+// Static assets (Dashboard UI, CSS, JS) - Only on localhost
+if (!isProduction) {
+  app.use(express.static(path.join(__dirname, 'public')));
+}
 
 // Mount Routes
 app.use('/track', trackRoutes);
-app.use('/api/admin', requireAuth, adminRoutes);
+
+// Admin routes - Only on localhost
+if (!isProduction) {
+  app.use('/api/admin', adminRoutes);
+}
 
 // Health check & safety disclaimer endpoint
 app.get('/api/health', (req, res) => {
@@ -125,9 +108,16 @@ async function startServer() {
 
   app.listen(PORT, () => {
     console.log(`=======================================================`);
-    console.log(`🛡️  PhishAware - Phishing Simulation Platform Running`);
-    console.log(`📡 URL: http://localhost:${PORT}`);
-    console.log(`📊 Admin Dashboard: http://localhost:${PORT}/index.html`);
+    if (isProduction) {
+      console.log(`� Login Page Running (Production)`);
+      console.log(`📡 URL: https://phish-tracker-1.onrender.com`);
+      console.log(`📊 Dashboard: Disabled (use localhost)`);
+    } else {
+      console.log(`�🛡️  PhishAware - Phishing Simulation Platform Running`);
+      console.log(`📡 URL: http://localhost:${PORT}`);
+      console.log(`📊 Admin Dashboard: http://localhost:${PORT}/index.html`);
+    }
+    console.log(`💾 MongoDB Atlas Connected`);
     console.log(`=======================================================`);
   });
 }
