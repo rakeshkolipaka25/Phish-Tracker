@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: Phish-Tracker
+    name: phishingmail
     env: node
     buildCommand: npm install
     startCommand: node server.js
